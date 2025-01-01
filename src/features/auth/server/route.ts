@@ -54,7 +54,7 @@ export const authRouter = new Hono()
 
                 return c.json({ success: "Registration successful" });
             } catch (error) {
-                console.error(error);
+                console.log(error);
                 return c.json({ error: "Internal server error" });
             }
         }

@@ -9,7 +9,7 @@ import { DescriptionForm } from "./description-form";
 import { ImageForm } from "./image-form";
 import { CategoryForm } from "./category-form";
 import { PriceForm } from "./price-form";
-import { ChaptersForm } from "../chapter/components/chapter-form";
+import { ChaptersForm } from "./chapter-form";
 import { Banner } from "@/components/banner";
 import { Actions } from "./action";
 

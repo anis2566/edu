@@ -90,3 +90,10 @@ export const courseRouter = new Hono()
             return c.json(categories);
         }
     )
+    .get(
+        "/",
+        async (c) => {
+            const courses = await db.course.findMany();
+            return c.json(courses);
+        }
+    )

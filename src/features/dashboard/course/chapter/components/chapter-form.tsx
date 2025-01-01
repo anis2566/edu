@@ -1,138 +1,144 @@
-"use client";
-
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Loader2, PlusCircle } from "lucide-react";
-import { useState, useCallback } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  Eye,
+  FileText,
+  LayoutDashboard,
+  LucideIcon,
+  Paperclip,
+  Video,
+} from "lucide-react";
 import { Chapter } from "@prisma/client";
 
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { IconBadge } from "@/components/icon-badge";
+import { TitleForm } from "./title-form";
+import { DescriptionForm } from "./description-form";
+import { AccessForm } from "./access-form";
+import { ThumbnailForm } from "./thumbnail-form";
 
-import { cn } from "@/lib/utils";
-import { useCreateChapter } from "../api/use-create-chapter";
-import { LoadingButton } from "@/components/loading-button";
-import { ChaptersList } from "./chapter-list";
-import { useReorderChapters } from "../api/use-reorder-chapters";
+// interface ChapterWithAttachments extends Chapter {
+//   attachments: Attachment[];
+//   assignments: Assignment | null;
+// }
 
-interface ChaptersFormProps {
-    chapters: Chapter[];
-    courseId: string;
+interface Props {
+  chapter: Chapter;
 }
 
-const formSchema = z.object({
-    title: z.string().min(1, { message: "required" }),
-});
+export const ChapterForm = async ({ chapter }: Props) => {
+  const requiredFields = [
+    chapter.title,
+    chapter.description,
+    chapter.videoUrl,
+    chapter.videoThumbnail,
+  ];
 
-export const ChaptersForm = ({ chapters, courseId }: ChaptersFormProps) => {
-    const [isCreating, setIsCreating] = useState(false);
+  const totalFields = requiredFields.length;
+  const completedFields = requiredFields.filter(Boolean).length;
+  const isComplete = completedFields === totalFields;
+  const completionText = `(${completedFields}/${totalFields})`;
 
-    const toggleCreating = useCallback(() => setIsCreating((current) => !current), []);
-
-    const { mutate: createChapter, isPending } = useCreateChapter({ toggleEdit: toggleCreating });
-
-    const { mutate: reorderChapters, isPending: isReordering } = useReorderChapters();
-
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: { title: "" },
-    });
-
-    const onSubmit = (values: z.infer<typeof formSchema>) => {
-        createChapter({
-            title: values.title,
-            courseId,
-        });
-    }
-
-    const onReorder = useCallback(
-        (updateData: { id: string; position: number }[]) => {
-            reorderChapters({ json: { list: updateData } });
-        },
-        []
-    );
-
-    return (
-        <div className="relative mt-6 rounded-md border bg-card p-4">
-            {(isReordering) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-500/20 z-10">
-                    <Loader2 className="h-6 w-6 animate-spin text-sky-700" />
-                </div>
-            )}
-
-            <div className="flex items-center justify-between font-medium">
-                <span className="font-semibold">Chapters</span>
-                <Button onClick={toggleCreating} variant="ghost">
-                    {isCreating ? "Cancel" : (
-                        <>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add a chapter
-                        </>
-                    )}
-                </Button>
+  return (
+    <div>
+      {/* {!chapter.isPublished && (
+        <Banner
+          variant="warning"
+          label="This chapter is unpublished. It will not be visible in the course"
+        />
+      )} */}
+      
+      <div className="flex items-center justify-between">
+        <div className="w-full">
+          <Link
+            href={`/dashboard/course/${chapter.id}`}
+            className="my-6 flex items-center text-sm transition hover:opacity-75"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to course setup
+          </Link>
+          
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-y-2">
+              <h1 className="text-2xl font-medium">Chapter Creation</h1>
+              <span className="text-sm text-slate-700">
+                Complete all fields {completionText}
+              </span>
             </div>
-
-            {isCreating ? (
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isPending}
-                                            placeholder="e.g. 'Introduction to the course'"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="flex items-center gap-x-2">
-                            <LoadingButton
-                                isLoading={isPending}
-                                title="Save"
-                                loadingTitle="Saving..."
-                                onClick={form.handleSubmit(onSubmit)}
-                                type="submit"
-                            />
-                        </div>
-                    </form>
-                </Form>
-            ) : (
-                <>
-                    <div className={cn("mt-2 text-sm", !chapters.length && "italic text-slate-500")}>
-                        {chapters.length ? (
-                            <ChaptersList
-                                courseId={courseId}
-                                onReorder={onReorder}
-                                items={chapters}
-                            />
-                        ) : (
-                            "No chapters"
-                        )}
-                    </div>
-                    {chapters.length > 0 && (
-                        <p className="mt-4 text-xs text-muted-foreground">
-                            Drag and drop to reorder the chapters
-                        </p>
-                    )}
-                </>
-            )}
+            {/* <Actions
+              disabled={!isComplete}
+              isPublished={chapter.isPublished}
+              chapterId={chapter.id}
+              courseId={chapter.courseId}
+            /> */}
+          </div>
         </div>
-    );
+      </div>
+
+      <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-4">
+          <Section title="Chapter Identify" icon={LayoutDashboard}>
+            <TitleForm
+              initialData={chapter}
+              chapterId={chapter.id}
+            />
+            <DescriptionForm
+              initialData={chapter}
+              chapterId={chapter.id}
+            />
+          </Section>
+
+          <Section title="Access Settings" icon={Eye}>
+            <AccessForm
+              initialData={chapter}
+              chapterId={chapter.id}
+            />
+          </Section>
+
+          {/* <Section title="Attachments" icon={Paperclip}>
+            <AttachmentsForm
+              attachments={attachments}
+              chapterId={chapter.id}
+            />
+          </Section> */}
+
+          {/* <Section title="Assignments" icon={FileText}>
+            <AssignmentForm
+              chapterId={chapter.id}
+              assignment={assignment}
+            />
+          </Section> */}
+        </div>
+
+        <div>
+          <Section title="Media" icon={Video}>
+            <ThumbnailForm
+              initialData={chapter}
+              chapterId={chapter.id}
+            />
+            {/* <VideoForm
+              initialData={chapterData}
+              chapterId={chapter.id}
+              courseId={chapter.courseId}
+            /> */}
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+interface SectionProps {
+  title: string;
+  icon: LucideIcon;
+  children: React.ReactNode;
+}
+
+const Section = ({ title, icon: Icon, children }: SectionProps) => (
+  <div>
+    <div className="flex items-center gap-x-2">
+      <IconBadge icon={Icon as LucideIcon} />
+      <h2 className="text-xl">{title}</h2>
+    </div>
+    {children}
+  </div>
+);

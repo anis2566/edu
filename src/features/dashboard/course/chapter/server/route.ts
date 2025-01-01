@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { isAdmin } from "@/lib/session-middleware";
+import { ChapterSchema } from "../schema";
 
 export const chapterRouter = new Hono()
     .post(
@@ -59,6 +60,36 @@ export const chapterRouter = new Hono()
                 await db.$transaction(transaction);
 
                 return c.json({ success: "Chapters reordered" }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .put(
+        "/:chapterId",
+        isAdmin,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        zValidator('json', ChapterSchema),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+            const body = c.req.valid('json');
+
+            try {
+                const chapter = await db.chapter.findUnique({
+                    where: { id: chapterId },
+                });
+
+                if (!chapter) {
+                    return c.json({ error: "Chapter not found" }, 404);
+                }
+
+                await db.chapter.update({
+                    where: { id: chapterId },
+                    data: body,
+                });
+
+                return c.json({ success: "Chapter updated" }, 200);
             } catch (error) {
                 console.error(error);
                 return c.json({ error: "Internal server error" }, 500);

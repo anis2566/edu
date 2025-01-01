@@ -116,7 +116,7 @@ export const ChaptersList = ({
                                                     <TooltipTrigger asChild>
                                                         <Button variant="ghost" size="icon" asChild>
                                                             <Link
-                                                                href={`/admin/course/${courseId}/chapter/${chapter.id}`}
+                                                                href={`/dashboard/course/${courseId}/chapter/${chapter.id}`}
                                                             >
                                                                 <Pencil className="h-5 w-5" />
                                                             </Link>
