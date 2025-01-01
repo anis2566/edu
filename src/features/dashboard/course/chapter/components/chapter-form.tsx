@@ -8,13 +8,15 @@ import {
   Paperclip,
   Video,
 } from "lucide-react";
-import { Chapter } from "@prisma/client";
+import { Chapter, Attachment } from "@prisma/client";
 
 import { IconBadge } from "@/components/icon-badge";
 import { TitleForm } from "./title-form";
 import { DescriptionForm } from "./description-form";
 import { AccessForm } from "./access-form";
 import { ThumbnailForm } from "./thumbnail-form";
+import { AttachmentsForm } from "./attachment-form";
+import { VideoForm } from "./video-form";
 
 // interface ChapterWithAttachments extends Chapter {
 //   attachments: Attachment[];
@@ -23,9 +25,10 @@ import { ThumbnailForm } from "./thumbnail-form";
 
 interface Props {
   chapter: Chapter;
+  attachments: Attachment[];
 }
 
-export const ChapterForm = async ({ chapter }: Props) => {
+export const ChapterForm = async ({ chapter, attachments }: Props) => {
   const requiredFields = [
     chapter.title,
     chapter.description,
@@ -46,7 +49,7 @@ export const ChapterForm = async ({ chapter }: Props) => {
           label="This chapter is unpublished. It will not be visible in the course"
         />
       )} */}
-      
+
       <div className="flex items-center justify-between">
         <div className="w-full">
           <Link
@@ -56,7 +59,7 @@ export const ChapterForm = async ({ chapter }: Props) => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to course setup
           </Link>
-          
+
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-y-2">
               <h1 className="text-2xl font-medium">Chapter Creation</h1>
@@ -94,12 +97,12 @@ export const ChapterForm = async ({ chapter }: Props) => {
             />
           </Section>
 
-          {/* <Section title="Attachments" icon={Paperclip}>
+          <Section title="Attachments" icon={Paperclip}>
             <AttachmentsForm
               attachments={attachments}
               chapterId={chapter.id}
             />
-          </Section> */}
+          </Section>
 
           {/* <Section title="Assignments" icon={FileText}>
             <AssignmentForm
@@ -115,11 +118,10 @@ export const ChapterForm = async ({ chapter }: Props) => {
               initialData={chapter}
               chapterId={chapter.id}
             />
-            {/* <VideoForm
-              initialData={chapterData}
+            <VideoForm
+              initialData={chapter}
               chapterId={chapter.id}
-              courseId={chapter.courseId}
-            /> */}
+            />
           </Section>
         </div>
       </div>

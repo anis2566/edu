@@ -35,9 +35,9 @@ export const TitleForm = ({
 }: ChapterTitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
-    const toggleEdit = useCallback(() => setIsEditing((prev) => !prev), []);
-    
-    const { mutate: updateChapter, isPending } = useUpdateChapter({ toggleEdit });
+  const toggleEdit = useCallback(() => setIsEditing((prev) => !prev), []);
+
+  const { mutate: updateChapter, isPending } = useUpdateChapter({ toggleEdit });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,12 +87,12 @@ export const TitleForm = ({
             />
             <div className="flex items-center gap-x-2">
               <LoadingButton
-                    isLoading={isPending}
-                    title="Save"
-                    loadingTitle="Saving..."
-                    onClick={form.handleSubmit(onSubmit)}
-                    type="submit"
-                />
+                isLoading={isPending}
+                title="Save"
+                loadingTitle="Saving..."
+                onClick={form.handleSubmit(onSubmit)}
+                type="submit"
+              />
             </div>
           </form>
         </Form>

@@ -21,15 +21,18 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: {
-    chapterId: string;
-  };
+  params: Promise<{ id: string, chapterId: string }>
 }
 
-const Chapter = async ({ params: { chapterId } }: Props) => {
+const Chapter = async ({ params }: Props) => {
+  const { chapterId } = (await params)
+
   const chapter = await db.chapter.findUnique({
     where: {
       id: chapterId,
+    },
+    include: {
+      attachments: true,
     },
   });
 
@@ -57,7 +60,7 @@ const Chapter = async ({ params: { chapterId } }: Props) => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <ChapterForm chapter={chapter} assignment={chapter.assignments} />
+      <ChapterForm chapter={chapter} attachments={chapter.attachments} />
     </ContentLayout>
   );
 };

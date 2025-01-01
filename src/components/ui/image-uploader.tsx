@@ -10,16 +10,18 @@ interface ImageUploaderProps {
     multiple?: boolean;
     type?: string;
     disabled?: boolean;
+    clientAllowedFormats?: string[];
 }
 
-export const ImageUploader = ({ preset, onChange, multiple = false, type = "image", disabled = false }: ImageUploaderProps) => {
+export const ImageUploader = ({ preset, onChange, multiple = false, type = "image", disabled = false, clientAllowedFormats = ["image"] }: ImageUploaderProps) => {
 
     return (
         <CldUploadWidget
             uploadPreset={preset}
             options={{
                 resourceType: type,
-                multiple
+                multiple,
+                clientAllowedFormats,
             }}
             onQueuesEnd={(result, { widget }) => {
                 const info = result.info

@@ -50,7 +50,7 @@ export const CourseDetails = ({ course }: Props) => {
                 </div>
 
                 <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div>
+                    <div className="space-y-4">
                         <SectionHeader icon={LayoutDashboard} title="Course Identity" />
                         <TitleForm initialData={course} courseId={course.id} />
                         <DescriptionForm initialData={course} courseId={course.id} />

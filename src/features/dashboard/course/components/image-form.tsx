@@ -57,7 +57,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
     };
 
     return (
-        <div className="mt-6 rounded-md border bg-card p-4">
+        <div className="mt-2 rounded-md border bg-card p-4">
             <div className="flex items-center justify-between font-medium">
                 <span className="font-semibold">Thumbnail</span>
                 <Button onClick={toggleEdit} variant="ghost">

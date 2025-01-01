@@ -62,7 +62,7 @@ export const ChaptersForm = ({ chapters, courseId }: ChaptersFormProps) => {
     );
 
     return (
-        <div className="relative mt-6 rounded-md border bg-card p-4">
+        <div className="relative mt-2 rounded-md border bg-card p-4">
             {(isReordering) && (
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-500/20 z-10">
                     <Loader2 className="h-6 w-6 animate-spin text-sky-700" />

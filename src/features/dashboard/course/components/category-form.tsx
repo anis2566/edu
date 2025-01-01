@@ -72,7 +72,7 @@ export const CategoryForm = ({ initialData, courseId }: CategoryFormProps) => {
     }
 
     return (
-        <div className="mt-6 rounded-md border bg-card p-4">
+        <div className="mt-2 rounded-md border bg-card p-4">
             <div className="flex items-center justify-between font-medium">
                 <span className="font-semibold">Category</span>
                 <Button onClick={toggleEdit} variant="ghost">
