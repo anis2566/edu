@@ -7,6 +7,26 @@ import { db } from "@/lib/db";
 import { isAdmin } from "@/lib/session-middleware";
 import { ChapterSchema } from "../schema";
 
+type ClientPayload = {
+    policy: string;
+    key: string;
+    "x-amz-signature": string;
+    "x-amz-algorithm": string;
+    "x-amz-date": string;
+    "x-amz-credential": string;
+    uploadLink: string;
+};
+
+export type UploadPayload = {
+    clientPayload: ClientPayload;
+    videoId: string;
+};
+
+export type VideoOtpPayload = {
+    otp: string;
+    playbackInfo: string;
+};
+
 export const chapterRouter = new Hono()
     .post(
         '/',
@@ -154,37 +174,12 @@ export const chapterRouter = new Hono()
         }
     )
     .post(
-        "/generateVideo",
-        isAdmin,
-        zValidator('json', z.object({
-            title: z.string().min(1, { message: "required" }),
-        })),
-        async (c) => {
-            const { title } = c.req.valid('json');
-
-            try {
-                const res = await axios.put(
-                    `https://dev.vdocipher.com/api/videos?title=${title}`, // Ensure the title is URL-encoded
-                    {}, // Body (empty object if no data needs to be sent in the request body)
-                    {
-                        headers: {
-                            Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`, // Headers go here
-                        },
-                    }
-                );
-
-                return c.json({ data: res.data }, 200);
-            } catch (error) {
-                console.log(error);
-                return c.json({ error: "Internal server error" }, 500);
-            }
-        }
-    )
-    .post(
         "/uploadVideo/:chapterId",
         isAdmin,
         zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
-        zValidator("form", z.object({ file: z.instanceof(File, { message: "required" }) })),
+        zValidator("form", z.object({
+            file: z.instanceof(File, { message: "required" }),
+        })),
         async (c) => {
             const { chapterId } = c.req.valid('param');
             const body = c.req.valid('form');
@@ -199,55 +194,151 @@ export const chapterRouter = new Hono()
                 }
 
                 const res = await axios.put(
-                    `https://dev.vdocipher.com/api/videos?title=${chapter.title}`, // Ensure the title is URL-encoded
-                    {}, // Body (empty object if no data needs to be sent in the request body)
+                    `https://dev.vdocipher.com/api/videos?title=${chapter.title}`,
+                    {},
                     {
                         headers: {
-                            Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`, // Headers go here
+                            Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`,
                         },
                     }
                 );
-                const data = res.data;
 
+                if (res.status !== 200) {
+                    return c.json({ error: "Failed to generate video" }, 400);
+                }
 
-                if (!data?.clientPayload?.uploadLink || !data?.videoId || !body.file || !data?.clientPayload?.policy || !data?.clientPayload?.key || !data?.clientPayload?.["x-amz-signature"] || !data?.clientPayload?.["x-amz-algorithm"] || !data?.clientPayload?.["x-amz-date"] || !data?.clientPayload?.["x-amz-credential"]) {
-                    return c.json({ error: "Failed to upload video" }, 500);
+                const data = res.data as UploadPayload;
+
+                const { videoId, clientPayload } = data;
+
+                if (!videoId || !clientPayload.key || !clientPayload.policy || !clientPayload.uploadLink || !clientPayload["x-amz-signature"] || !clientPayload["x-amz-algorithm"] || !clientPayload["x-amz-date"] || !clientPayload["x-amz-credential"]) {
+                    return c.json({ error: "Failed to generate video" }, 400);
                 }
 
                 const formData = new FormData();
-                formData.append("policy", data?.clientPayload?.policy);
-                formData.append("key", data?.clientPayload?.key);
-                formData.append("x-amz-signature", data?.clientPayload?.["x-amz-signature"]);
-                formData.append("x-amz-algorithm", data?.clientPayload?.["x-amz-algorithm"]);
-                formData.append("x-amz-date", data?.clientPayload?.["x-amz-date"]);
-                formData.append("x-amz-credential", data?.clientPayload?.["x-amz-credential"]);
-                formData.append("uploadLink", data?.clientPayload?.uploadLink);
+                formData.append("policy", data.clientPayload.policy);
+                formData.append("key", data.clientPayload.key);
+                formData.append("x-amz-signature", data.clientPayload["x-amz-signature"]);
+                formData.append("x-amz-algorithm", data.clientPayload["x-amz-algorithm"]);
+                formData.append("x-amz-date", data.clientPayload["x-amz-date"]);
+                formData.append("x-amz-credential", data.clientPayload["x-amz-credential"]);
                 formData.append("success_action_status", "201");
                 formData.append("success_action_redirect", "");
-                formData.append("videoId", data?.videoId);
                 formData.append("file", body.file);
 
-                const uploadRes = await axios.post(data.clientPayload.uploadLink, formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                })
+                const uploadRes = await fetch(data.clientPayload.uploadLink, {
+                    method: 'POST',
+                    body: formData,
+                });
 
-                if (uploadRes.status !== 200) {
-                    const errorText = uploadRes.data;
-                    console.error(`Error uploading video: ${errorText}`);
+                if (uploadRes.status !== 201) {
+                    const errorText = await uploadRes.text();
+                    console.error(`Error uploading file: ${errorText}`);
+                    throw new Error('File upload failed');
                 }
 
-                if (uploadRes.status === 200) {
-                    await db.chapter.update({
-                        where: { id: chapterId },
-                        data: { videoUrl: data.videoId },
-                    });
-                }
 
-                return c.json({ error: "Video uploaded" }, 200);
+                await db.chapter.update({
+                    where: { id: chapterId },
+                    data: { videoUrl: data.videoId },
+                });
+
+                return c.json({ success: "Video uploaded" }, 200);
             } catch (error) {
                 console.log(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .get(
+        "/videoOtp/:videoId",
+        isAdmin,
+        zValidator('param', z.object({ videoId: z.string().min(1, { message: "required" }) })),
+        async (c) => {
+            const { videoId } = c.req.valid('param');
+
+            try {
+                const res = await axios.post(
+                    `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+                    {
+                        ttl: 300,
+                    },
+                    {
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                            Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`,
+                        },
+                    },
+                );
+
+                if (res.status !== 200) {
+                    throw new Error("Failed to generate OTP");
+                }
+
+                if (!res.data.otp || !res.data.playbackInfo) {
+                    throw new Error("Failed to generate OTP");
+                }
+
+                const resData: VideoOtpPayload = res.data;
+
+                return c.json(resData, 200);
+            } catch (error) {
+                throw new Error("Failed to generate OTP");
+            }
+        }
+    )
+    .put(
+        "/togglePublish/:chapterId",
+        isAdmin,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        zValidator('json', z.object({ isPublished: z.boolean() })),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+            const body = c.req.valid('json');
+
+            try {
+                const chapter = await db.chapter.findUnique({
+                    where: { id: chapterId },
+                });
+
+                if (!chapter) {
+                    return c.json({ error: "Chapter not found" }, 404);
+                }
+
+                await db.chapter.update({
+                    where: { id: chapterId },
+                    data: { isPublished: body.isPublished },
+                });
+
+                return c.json({ success: "Chapter published" }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .delete(
+        "/:chapterId",
+        isAdmin,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+
+            try {
+                const chapter = await db.chapter.findUnique({
+                    where: { id: chapterId },
+                });
+
+                if (!chapter) {
+                    return c.json({ error: "Chapter not found" }, 404);
+                }
+
+                await db.chapter.delete({ where: { id: chapterId } });
+
+                return c.json({ success: "Chapter deleted" }, 200);
+            } catch (error) {
+                console.error(error);
                 return c.json({ error: "Internal server error" }, 500);
             }
         }

@@ -5,25 +5,26 @@ import { Chapter } from "@prisma/client";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+
 import { useOpenUpload } from "@/hooks/use-chapter";
+import { VideoPlayer } from "@/components/video-player";
 
 interface ChapterVideoFormProps {
     initialData: Chapter;
     chapterId: string;
+    courseId: string;
 }
 
 export const VideoForm = ({
     initialData,
     chapterId,
+    courseId,
 }: ChapterVideoFormProps) => {
     const [isEditing, setIsEditing] = useState(false);
 
     const toggleEdit = () => setIsEditing((current) => !current);
 
     const { onOpen } = useOpenUpload();
-
-    let isPending = false;
-    let isLoading = false;
 
     return (
         <div className="mb-10 mt-6 rounded-md border bg-card p-4">
@@ -42,12 +43,11 @@ export const VideoForm = ({
             </div>
             {!isEditing && initialData.videoUrl ? (
                 <div className="mt-4">
-                    <p>Video</p>
-                    {/* <VideoPlayer videoId={initialData.videoUrl} /> */}
+                    <VideoPlayer videoId={initialData.videoUrl} />
                 </div>
             ) : null}
             {isEditing && (
-                <Button type="button" variant="outline" className="w-full" onClick={() => onOpen(chapterId)}>
+                <Button type="button" variant="outline" className="w-full" onClick={() => onOpen(chapterId, courseId, setIsEditing)}>
                     Upload
                 </Button>
             )}

@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Eye,
-  FileText,
   LayoutDashboard,
   LucideIcon,
   Paperclip,
@@ -17,11 +16,8 @@ import { AccessForm } from "./access-form";
 import { ThumbnailForm } from "./thumbnail-form";
 import { AttachmentsForm } from "./attachment-form";
 import { VideoForm } from "./video-form";
-
-// interface ChapterWithAttachments extends Chapter {
-//   attachments: Attachment[];
-//   assignments: Assignment | null;
-// }
+import { Banner } from "@/components/banner";
+import { Actions } from "./action";
 
 interface Props {
   chapter: Chapter;
@@ -43,12 +39,12 @@ export const ChapterForm = async ({ chapter, attachments }: Props) => {
 
   return (
     <div>
-      {/* {!chapter.isPublished && (
+      {!chapter.isPublished && (
         <Banner
           variant="warning"
           label="This chapter is unpublished. It will not be visible in the course"
         />
-      )} */}
+      )}
 
       <div className="flex items-center justify-between">
         <div className="w-full">
@@ -67,12 +63,11 @@ export const ChapterForm = async ({ chapter, attachments }: Props) => {
                 Complete all fields {completionText}
               </span>
             </div>
-            {/* <Actions
+            <Actions
               disabled={!isComplete}
               isPublished={chapter.isPublished}
               chapterId={chapter.id}
-              courseId={chapter.courseId}
-            /> */}
+            />
           </div>
         </div>
       </div>
@@ -121,6 +116,7 @@ export const ChapterForm = async ({ chapter, attachments }: Props) => {
             <VideoForm
               initialData={chapter}
               chapterId={chapter.id}
+              courseId={chapter.courseId}
             />
           </Section>
         </div>

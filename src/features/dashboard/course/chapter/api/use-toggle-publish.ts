@@ -1,29 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
-import { InferResponseType, InferRequestType } from "hono";
-import { toast } from "sonner";
+import { InferRequestType, InferResponseType } from "hono";
 import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 
 import { client } from "@/lib/rpc";
 
-type ResponseType = InferResponseType<typeof client.api.chapter.uploadVideo[":chapterId"]["$post"]>;
-type RequestType = InferRequestType<
-    typeof client.api.chapter.uploadVideo[":chapterId"]["$post"]
->
+type RequestType = InferRequestType<(typeof client.api.chapter.togglePublish)[":chapterId"]["$put"]>;
+type ResponseType = InferResponseType<(typeof client.api.chapter.togglePublish)[":chapterId"]["$put"]>;
 
-interface UploadVideoParams {
-    onClose: () => void;
-    setIsEditing: Dispatch<SetStateAction<boolean>> | undefined;
-}
-
-export const useUploadVideo = ({ onClose, setIsEditing }: UploadVideoParams) => {
+export const useTogglePublish = () => {
     const router = useRouter();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({ form, param }) => {
-            const res = await client.api.chapter.uploadVideo[":chapterId"]["$post"]({
-                param,
-                form,
+        mutationFn: async ({ json, param }) => {
+            const res = await client.api.chapter.togglePublish[":chapterId"]["$put"]({
+                json,
+                param: { chapterId: param.chapterId },
             });
             return await res.json();
         },
@@ -32,9 +24,7 @@ export const useUploadVideo = ({ onClose, setIsEditing }: UploadVideoParams) => 
                 toast.success(data.success, {
                     duration: 5000,
                 });
-                onClose();
                 router.refresh();
-                setIsEditing && setIsEditing(false);
             }
 
             if ("error" in data) {

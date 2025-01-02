@@ -13,12 +13,13 @@ interface Props {
     className?: string;
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
     icon?: LucideIcon;
+    disabled?: boolean;
 }
 
-export const LoadingButton = ({ isLoading, title, loadingTitle, onClick, type = "button", className, variant = "default", icon: Icon }: Props) => {
+export const LoadingButton = ({ isLoading, title, loadingTitle, onClick, type = "button", className, variant = "default", icon: Icon, disabled = false }: Props) => {
     return (
         <Button
-            disabled={isLoading}
+            disabled={isLoading || disabled}
             onClick={onClick}
             className={cn("flex items-center gap-x-3", className)}
             type={type}

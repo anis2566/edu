@@ -10,17 +10,18 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { useOpenUpload } from "@/hooks/use-chapter";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import { useUploadVideo } from "../api/use-upload-video";
+import { LoadingButton } from "@/components/loading-button";
 
 const formSchema = z.object({
     file: z.instanceof(File, { message: "required" }),
 });
 
 export const UploadModal = () => {
-    const { isOpen, onClose, chapterId } = useOpenUpload();
+    const { isOpen, onClose, chapterId, setIsEditing } = useOpenUpload();
 
-    const { mutate: uploadVideo } = useUploadVideo(chapterId);
+    const { mutate: uploadVideo, isPending: isUploading } = useUploadVideo({ onClose, setIsEditing });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -34,7 +35,7 @@ export const UploadModal = () => {
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={isUploading ? undefined : onClose}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Upload Video</DialogTitle>
@@ -65,7 +66,13 @@ export const UploadModal = () => {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Upload</Button>
+                        <LoadingButton
+                            isLoading={isUploading}
+                            title="Upload"
+                            loadingTitle="Uploading..."
+                            onClick={form.handleSubmit(onSubmit)}
+                            type="submit"
+                        />
                     </form>
                 </Form>
             </DialogContent>
