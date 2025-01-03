@@ -22,9 +22,10 @@ import { Actions } from "./action";
 interface Props {
   chapter: Chapter;
   attachments: Attachment[];
+  courseId: string;
 }
 
-export const ChapterForm = async ({ chapter, attachments }: Props) => {
+export const ChapterForm = async ({ chapter, attachments, courseId }: Props) => {
   const requiredFields = [
     chapter.title,
     chapter.description,
@@ -49,7 +50,7 @@ export const ChapterForm = async ({ chapter, attachments }: Props) => {
       <div className="flex items-center justify-between">
         <div className="w-full">
           <Link
-            href={`/dashboard/course/${chapter.id}`}
+            href={`/dashboard/course/${courseId}`}
             className="my-6 flex items-center text-sm transition hover:opacity-75"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

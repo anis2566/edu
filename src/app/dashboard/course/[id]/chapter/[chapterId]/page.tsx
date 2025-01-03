@@ -25,7 +25,7 @@ interface Props {
 }
 
 const Chapter = async ({ params }: Props) => {
-  const { chapterId } = (await params)
+  const { chapterId, id } = (await params)
 
   const chapter = await db.chapter.findUnique({
     where: {
@@ -60,7 +60,7 @@ const Chapter = async ({ params }: Props) => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <ChapterForm chapter={chapter} attachments={chapter.attachments} />
+      <ChapterForm chapter={chapter} attachments={chapter.attachments} courseId={id} />
     </ContentLayout>
   );
 };

@@ -4,6 +4,7 @@ import { DeleteCategoryModal } from "@/features/dashboard/category/components/de
 import { DeleteAttachmentModal } from "@/features/dashboard/course/chapter/components/delete-attachment-modal"
 import { UploadModal } from "@/features/dashboard/course/chapter/components/upload-modal"
 import { DeleteChapterModal } from "@/features/dashboard/course/chapter/components/delete-modal"
+import { DeleteCourseModal } from "@/features/dashboard/course/components/delete-modal"
 
 export const ModalProvider = () => {
     return (
@@ -12,6 +13,7 @@ export const ModalProvider = () => {
             <DeleteAttachmentModal />
             <UploadModal />
             <DeleteChapterModal />
+            <DeleteCourseModal />
         </>
     )
 }

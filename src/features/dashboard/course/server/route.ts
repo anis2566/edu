@@ -90,10 +90,117 @@ export const courseRouter = new Hono()
             return c.json(categories);
         }
     )
+    .put(
+        "/togglePublish/:courseId",
+        isAdmin,
+        zValidator('param', z.object({ courseId: z.string().min(1, { message: "required" }) })),
+        zValidator('json', z.object({ isPublished: z.boolean() })),
+        async (c) => {
+            const { courseId } = c.req.valid('param');
+            const body = c.req.valid('json');
+
+            try {
+                const course = await db.course.findUnique({
+                    where: { id: courseId },
+                });
+
+                if (!course) {
+                    return c.json({ error: "Course not found" }, 404);
+                }
+
+                await db.course.update({
+                    where: { id: courseId },
+                    data: { isPublished: body.isPublished },
+                });
+
+                return c.json({ success: "Course published" }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .delete(
+        "/:courseId",
+        isAdmin,
+        zValidator('param', z.object({ courseId: z.string().min(1, { message: "required" }) })),
+        async (c) => {
+            const { courseId } = c.req.valid('param');
+
+            try {
+                const course = await db.course.findUnique({
+                    where: { id: courseId },
+                });
+
+                if (!course) {
+                    return c.json({ error: "Course not found" }, 404);
+                }
+
+                await db.course.delete({ where: { id: courseId } });
+
+                return c.json({ success: "Course deleted" }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
     .get(
         "/",
+        zValidator("query", z.object({
+            page: z.string().optional(),
+            limit: z.string().optional(),
+            sort: z.string().optional(),
+            query: z.string().optional(),
+            categoryQuery: z.string().optional(),
+            status: z.string().optional(),
+        })),
         async (c) => {
-            const courses = await db.course.findMany();
-            return c.json(courses);
+            const { page, limit, sort, query, categoryQuery, status } = c.req.valid("query");
+
+            const pageNumber = parseInt(page || "1");
+            const limitNumber = parseInt(limit || "5");
+
+            const isPublished = status === "true";
+
+            const [courses, totalCount] = await Promise.all([
+                db.course.findMany({
+                    where: {
+                        ...(query && { title: { contains: query, mode: "insensitive" } }),
+                        ...(categoryQuery && {
+                            category: {
+                                name: { contains: categoryQuery, mode: "insensitive" },
+                            },
+                        }),
+                        ...(status && { isPublished }),
+                    },
+                    include: {
+                        category: true,
+                        chapters: {
+                            select: {
+                                id: true,
+                            },
+                        },
+                    },
+                    orderBy: {
+                        ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
+                    },
+                    skip: (pageNumber - 1) * limitNumber,
+                    take: limitNumber,
+                }),
+                db.course.count({
+                    where: {
+                        ...(query && { title: { contains: query, mode: "insensitive" } }),
+                        ...(categoryQuery && {
+                            category: {
+                                name: { contains: categoryQuery, mode: "insensitive" },
+                            },
+                        }),
+                        ...(status && { isPublished }),
+                    },
+                }),
+            ]);
+
+            return c.json({ courses, totalCount });
         }
     )
