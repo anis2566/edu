@@ -13,6 +13,10 @@ import {
     UserCheck,
     Package,
     BookOpen,
+    BookOpenCheck,
+    FileText,
+    MessagesSquare,
+    UserCog,
 } from "lucide-react";
 
 type Submenu = {
@@ -180,3 +184,64 @@ export function getAdminMenuList(pathname: string): Group[] {
         },
     ];
 }
+
+
+export function getMenuListUser(pathname: string): Group[] {
+    return [
+        {
+            groupLabel: "",
+            menus: [
+                {
+                    href: "/user",
+                    label: "Dashboard",
+                    active: pathname === "/user",
+                    icon: LayoutGrid,
+                    submenus: [],
+                },
+                {
+                    href: "/user/courses",
+                    label: "Courses",
+                    active: pathname.includes("/user/courses"),
+                    icon: BookOpen,
+                    submenus: [],
+                },
+                {
+                    href: "/user/my-courses",
+                    label: "My Courses",
+                    active: pathname === "/user/my-courses",
+                    icon: BookOpenCheck,
+                    submenus: [],
+                },
+                {
+                    href: "/user/assignment",
+                    label: "Assignment",
+                    active: pathname.includes("/user/assignment"),
+                    icon: FileText,
+                    submenus: [],
+                },
+                {
+                    href: "/user/feedback",
+                    label: "Feedback",
+                    active: pathname.includes("/user/feedback"),
+                    icon: MessageCircleWarning,
+                    submenus: [],
+                },
+                {
+                    href: "/user/chat",
+                    label: "Chat",
+                    active: pathname === "/user/chat",
+                    icon: MessagesSquare,
+                    submenus: [],
+                },
+                {
+                    href: "/user/profile",
+                    label: "Profile",
+                    active: pathname === "/user/profile",
+                    icon: UserCog,
+                    submenus: [],
+                },
+            ],
+        },
+    ];
+}
+

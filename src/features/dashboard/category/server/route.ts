@@ -126,3 +126,14 @@ export const categoryRouter = new Hono()
             return c.json({ categories, totalCount });
         }
     )
+    .get(
+        "/all",
+        async (c) => {
+            const categories = await db.category.findMany({
+                orderBy: {
+                    createdAt: "desc",
+                },
+            });
+            return c.json({ categories });
+        }
+    )

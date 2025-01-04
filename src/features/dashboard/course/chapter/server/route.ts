@@ -4,7 +4,7 @@ import { z } from "zod";
 import axios from "axios";
 
 import { db } from "@/lib/db";
-import { isAdmin } from "@/lib/session-middleware";
+import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
 import { ChapterSchema } from "../schema";
 
 type ClientPayload = {
@@ -47,10 +47,18 @@ export const chapterRouter = new Hono()
                     return c.json({ error: "Course not found" }, 404);
                 }
 
+                const lastChapter = await db.chapter.findFirst({
+                    where: { courseId },
+                    orderBy: { position: "desc" },
+                });
+
+                const position = lastChapter?.position || 0;
+
                 await db.chapter.create({
                     data: {
                         title,
                         courseId,
+                        position: position + 1,
                     },
                 });
 
@@ -340,6 +348,110 @@ export const chapterRouter = new Hono()
             } catch (error) {
                 console.error(error);
                 return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .get(
+        "/:chapterId",
+        sessionMiddleware,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+            const userId = c.get('user').userId;
+
+            try {
+
+                const course = await db.course.findFirst({
+                    where: {
+                        chapters: {
+                            some: { id: chapterId },
+                        },
+                    },
+                    include: {
+                        chapters: {
+                            select: {
+                                id: true,
+                            },
+                        },
+                    },
+                });
+
+                if (!course) {
+                    throw new Error("Course not found");
+                }
+
+                const purchased = await db.purchase.findUnique({
+                    where: {
+                        userId_courseId: {
+                            userId,
+                            courseId: course.id,
+                        },
+                    },
+                });
+
+                const isPurchased = !!purchased;
+
+                const chapter = await db.chapter.findUnique({
+                    where: { id: chapterId },
+                    include: {
+                        userProgress: {
+                            where: {
+                                userId,
+                            },
+                        },
+                    },
+                });
+
+                if (!chapter) {
+                    throw new Error("Chapter not found");
+                }
+
+                const userProgress = chapter.userProgress[0];
+
+                let previousChapter = null;
+                if (chapter.position !== null) {
+                    const pre = await db.chapter.findFirst({
+                        where: {
+                            position: chapter.position - 1,
+                        },
+                    });
+
+                    if (pre) {
+                        previousChapter = pre.id;
+                    }
+                }
+
+                let nextChapter = null;
+                if (chapter.position !== null && chapter.position < course.chapters.length - 1) {
+                    const next = await db.chapter.findFirst({
+                        where: {
+                            position: chapter.position + 1,
+                        },
+                    });
+
+                    if (next) {
+                        nextChapter = next.id;
+                    }
+                }
+
+                let isLocked = true;
+                if (chapter.isFree || isPurchased) {
+                    isLocked = false;
+                }
+
+                return c.json({ success: true, isPurchased, chapter, userProgress, previousChapter, nextChapter, isLocked, course }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({
+                    success: false,
+                    isPurchased: false,
+                    chapter: null,
+                    userProgress: null,
+                    previousChapter: null,
+                    nextChapter: null,
+                    isLocked: true,
+                    course: null,
+                }, 500);
             }
         }
     )

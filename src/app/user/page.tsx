@@ -1,9 +1,13 @@
-const User = () => {
+import { ContentLayout } from "@/features/user/components/content-layout";
+
+const Dashboard = () => {
     return (
-        <div>
-            <h1>User</h1>
-        </div>
+        <ContentLayout title="Dashboard">
+            <div>
+                <h1>Dashboard</h1>
+            </div>
+        </ContentLayout>
     )
 }
 
-export default User
+export default Dashboard;
