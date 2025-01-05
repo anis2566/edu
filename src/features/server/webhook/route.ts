@@ -30,7 +30,7 @@ export const webhookRouter = new Hono()
                 await db.$transaction(async (tx) => {
                     await tx.chapter.update({
                         where: {
-                            id: data.payload.id
+                            id: chapter.id
                         },
                         data: {
                             videoLength: data.payload.length
