@@ -7,6 +7,7 @@ import { categoryRouter } from '@/features/dashboard/category/server/route';
 import { courseRouter } from '@/features/dashboard/course/server/route';
 import { chapterRouter } from '@/features/dashboard/course/chapter/server/route';
 import { paymentRouter } from '@/features/server/routes/payment/route';
+import { webhookRouter } from '@/features/server/webhook/route';
 
 const app = new Hono()
     .basePath('/api')
@@ -16,6 +17,7 @@ const app = new Hono()
     .route('/course', courseRouter)
     .route('/chapter', chapterRouter)
     .route('/payment', paymentRouter)
+    .route('/webhooks', webhookRouter)
 
 export const GET = handle(app)
 export const POST = handle(app)
