@@ -245,25 +245,9 @@ export const chapterRouter = new Hono()
                     throw new Error('File upload failed');
                 }
 
-                const video = await fetch(`https://dev.vdocipher.com/api/videos/${data.videoId}`, {
-                    method: "GET",
-                    headers: {
-                        "Accept": "application/json",
-                        "Authorization": `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`
-                    }
-                })
-
-                if (video.status !== 200) {
-                    throw new Error("Failed to get video");
-                }
-
-                const videoData = await video.json();
-
-                console.log(videoData)
-
                 await db.chapter.update({
                     where: { id: chapterId },
-                    data: { videoUrl: data.videoId, videoLength: videoData?.length },
+                    data: { videoUrl: data.videoId },
                 });
 
                 return c.json({ success: "Video uploaded" }, 200);
