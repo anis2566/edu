@@ -1,5 +1,6 @@
-import { db } from "@/lib/db";
 import { Hono } from "hono";
+
+import { db } from "@/lib/db";
 
 export const webhookRouter = new Hono()
     .post(

@@ -201,6 +201,27 @@ export const chapterRouter = new Hono()
                     return c.json({ error: "Chapter not found" }, 404);
                 }
 
+                if (chapter.videoUrl) {
+                    // Delete existing videos
+                    const videoIds = chapter.videoUrl.split(','); // Assuming videoUrl is a comma-separated string of video IDs
+                    const deleteRes = await axios.delete(
+                        `https://dev.vdocipher.com/api/videos`,
+                        {
+                            params: { videos: videoIds.join(',') },
+                            headers: {
+                                Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`,
+                                "Content-Type": "application/json",
+                                Accept: "application/json",
+                            },
+                        }
+                    );
+
+                    if (deleteRes.status !== 200) {
+                        return c.json({ error: "Failed to delete existing videos" }, 400);
+                    }
+                }
+
+
                 const res = await axios.put(
                     `https://dev.vdocipher.com/api/videos?title=${chapter.title}`,
                     {},
@@ -257,6 +278,7 @@ export const chapterRouter = new Hono()
             }
         }
     )
+
     .get(
         "/videoOtp/:videoId",
         isAdmin,

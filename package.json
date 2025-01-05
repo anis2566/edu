@@ -36,6 +36,7 @@
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "emblor": "^1.4.7",
     "hono": "^4.6.15",

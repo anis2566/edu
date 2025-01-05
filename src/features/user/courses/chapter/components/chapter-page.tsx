@@ -7,6 +7,7 @@ import { CoursePlayer } from "@/components/course-player";
 import { useGetChapter } from "@/features/dashboard/course/chapter/api/use-get-chapter";
 import { ChapterSummary } from "./chapter-summary";
 import { Attachments } from "./attachments";
+import { secondsToHMS } from "@/lib/utils";
 
 interface Props {
     chapterId: string
@@ -55,7 +56,7 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
                         title={data?.course?.title ?? ""}
                     />
                 </div>
-                <ChapterSummary videoLength={10} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
+                <ChapterSummary videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
             </div>
 
             <Tabs defaultValue="description" className="w-full pt-6">

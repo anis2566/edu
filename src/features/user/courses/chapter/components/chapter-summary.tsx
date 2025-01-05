@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ChapterSummaryProps {
-    videoLength: number;
+    videoLength: string;
     attachments: number;
     questions: number;
 }
@@ -21,7 +21,7 @@ export const ChapterSummary = ({ videoLength, attachments, questions }: ChapterS
             <CardContent className="space-y-3">
                 <div className="flex items-center gap-x-3">
                     <Clock3 />
-                    <Badge variant="outline">{videoLength} minutes</Badge>
+                    <Badge variant="outline">{videoLength}</Badge>
                 </div>
                 <div className="flex items-center gap-x-3">
                     <Paperclip />
