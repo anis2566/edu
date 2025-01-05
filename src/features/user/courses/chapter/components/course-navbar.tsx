@@ -20,7 +20,7 @@ interface Props {
     purchased: boolean;
 }
 
-export const CourseNavbar = ({ course, purchased }: Props) => {
+export const CourseNavbar = ({}: Props) => {
     return (
         <header className="sticky top-0 z-10 w-full flex-1 bg-muted/40 shadow backdrop-blur supports-[backdrop-filter]:bg-muted/40 dark:shadow-secondary">
             <div className="mx-2 flex h-14 items-center justify-between sm:mx-8">

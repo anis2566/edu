@@ -245,10 +245,25 @@ export const chapterRouter = new Hono()
                     throw new Error('File upload failed');
                 }
 
+                const video = await fetch(`https://dev.vdocipher.com/api/videos/${data.videoId}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                        "Authorization": `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`
+                    }
+                })
+
+                if (video.status !== 200) {
+                    throw new Error("Failed to get video");
+                }
+
+                const videoData = await video.json();
+
+                console.log(videoData)
 
                 await db.chapter.update({
                     where: { id: chapterId },
-                    data: { videoUrl: data.videoId },
+                    data: { videoUrl: data.videoId, videoLength: videoData?.length },
                 });
 
                 return c.json({ success: "Video uploaded" }, 200);
@@ -291,7 +306,7 @@ export const chapterRouter = new Hono()
                 const resData: VideoOtpPayload = res.data;
 
                 return c.json(resData, 200);
-            } catch (error) {
+            } catch {
                 throw new Error("Failed to generate OTP");
             }
         }
@@ -399,6 +414,7 @@ export const chapterRouter = new Hono()
                                 userId,
                             },
                         },
+                        attachments: true,
                     },
                 });
 
@@ -452,6 +468,42 @@ export const chapterRouter = new Hono()
                     isLocked: true,
                     course: null,
                 }, 500);
+            }
+        }
+    )
+    .put(
+        "/toggleCompleted/:chapterId",
+        sessionMiddleware,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        zValidator('json', z.object({ isCompleted: z.boolean() })),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+            const { isCompleted } = c.req.valid('json');
+
+            const userId = c.get('user').userId;
+
+            try {
+                await db.userProgress.upsert({
+                    where: {
+                        userId_chapterId: {
+                            userId,
+                            chapterId,
+                        },
+                    },
+                    update: {
+                        isCompleted: isCompleted,
+                    },
+                    create: {
+                        userId,
+                        chapterId,
+                        isCompleted: isCompleted,
+                    },
+                });
+
+                return c.json({ success: `Chapter ${isCompleted ? "completed" : "uncompleted"}` }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
             }
         }
     )

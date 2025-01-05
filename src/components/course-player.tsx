@@ -1,14 +1,10 @@
 "use client";
 
 import { Loader2, Lock } from "lucide-react";
-import { Course } from "@prisma/client";
-import { useMutation } from "@tanstack/react-query";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 
 import { VideoPlayer } from "@/components/video-player";
-import { formatPrice } from "@/lib/utils";
 import { VideoController } from "@/features/user/courses/chapter/components/video-controller";
 
 interface CoursePlayerProps {
@@ -17,9 +13,12 @@ interface CoursePlayerProps {
     isPurchased: boolean;
     isLoading: boolean;
     courseId: string;
+    chapterId: string;
     nextChapterId: string;
     previousChapterId: string;
     price: number;
+    isCompleted: boolean;
+    title: string;
 }
 
 export const CoursePlayer = ({
@@ -28,21 +27,16 @@ export const CoursePlayer = ({
     isPurchased,
     isLoading,
     courseId,
+    chapterId,
     nextChapterId,
     previousChapterId,
-    price
+    price,
+    isCompleted,
+    title
 }: CoursePlayerProps) => {
-    const handleEnroll = () => {
-        // if (course?.price) {
-        //   createPayment({ amount: course.price.toString(), courseId });
-        // }
-    };
-
     if (isLoading) {
         return <Skeleton className="aspect-video w-full" />;
     }
-
-    let isPending = false;
 
     return (
         <div className="space-y-4">
@@ -58,22 +52,17 @@ export const CoursePlayer = ({
                         <p className="text-sm">This chapter is locked</p>
                     </div>
                 )}
-                {!isPurchased && !isLocked && <VideoPlayer videoId={videoId} />}
-                {/* {isPurchased && isPreviousChapterCompleted && (
-                    <VideoPlayer videoId={videoId} />
-                )} */}
+                {!isLocked && <VideoPlayer videoId={videoId} />}
             </div>
-            {/* {!isPurchased && (
-                <Button onClick={handleEnroll} disabled={isPending}>
-                    Enroll with {formatPrice(course?.price ?? 0)}
-                </Button>
-            )} */}
+            <h3 className="text-2xl font-bold w-full max-w-sm truncate">{title}</h3>
             <VideoController
                 courseId={courseId}
                 nextChapterId={nextChapterId}
                 previousChapterId={previousChapterId}
                 isPurchased={isPurchased}
                 price={price}
+                isCompleted={isCompleted}
+                chapterId={chapterId}
             />
         </div>
     );

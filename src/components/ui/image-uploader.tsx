@@ -27,6 +27,7 @@ export const ImageUploader = ({ preset, onChange, multiple = false, type = "imag
                 const info = result.info
                 if (info && typeof info === "object") {
                     const files = info.files as { uploadInfo: { secure_url: string } }[]
+                    console.log(files)
                     if (files) {
                         const secureUrls = files.map((file) => file.uploadInfo.secure_url)
                         onChange(secureUrls)

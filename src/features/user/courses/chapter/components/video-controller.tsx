@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 import { cn, formatPrice } from "@/lib/utils";
 import { useCreatePayment } from "@/features/server/api/payment/use-create-payment";
+import { useToggleComplete } from "@/features/dashboard/course/chapter/api/use-toggle-complete";
 
 interface Props {
     nextChapterId: string;
@@ -14,6 +15,8 @@ interface Props {
     courseId: string;
     isPurchased: boolean;
     price: number;
+    chapterId: string;
+    isCompleted: boolean;
 }
 
 export const VideoController = ({
@@ -21,14 +24,24 @@ export const VideoController = ({
     courseId,
     previousChapterId,
     isPurchased,
-    price
+    price,
+    chapterId,
+    isCompleted
 }: Props) => {
     const { mutate: createPayment, isPending } = useCreatePayment();
+    const { mutate: toggleComplete, isPending: isToggleCompletePending } = useToggleComplete();
 
     const handleEnroll = () => {
         createPayment({
             courseId,
             amount: price,
+        });
+    };
+
+    const handleToggleComplete = () => {
+        toggleComplete({
+            param: { chapterId },
+            json: { isCompleted: !isCompleted },
         });
     };
 
@@ -69,8 +82,10 @@ export const VideoController = ({
 
                     <Button
                         variant="outline"
+                        onClick={handleToggleComplete}
+                        disabled={isToggleCompletePending}
                     >
-                        Mark as Complete
+                        {isCompleted ? "Mark as Uncomplete" : "Mark as Complete"}
                     </Button>
                 ) : (
                     <Button onClick={handleEnroll} disabled={isPending}>

@@ -34,7 +34,9 @@ export const useUploadVideo = ({ onClose, setIsEditing }: UploadVideoParams) => 
                 });
                 onClose();
                 router.refresh();
-                setIsEditing && setIsEditing(false);
+                if (setIsEditing) {
+                    setIsEditing(false);
+                }
             }
 
             if ("error" in data) {

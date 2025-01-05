@@ -34,7 +34,7 @@ export const courseRouter = new Hono()
                 });
 
                 return c.json({ success: "Course created", courseId: course.id }, 200);
-            } catch (error) {
+            } catch {
                 return c.json({ error: "Failed to create course" }, 500);
             }
         }

@@ -11,7 +11,6 @@ import {
     Users,
     Radio,
     UserCheck,
-    Package,
     BookOpen,
     BookOpenCheck,
     FileText,

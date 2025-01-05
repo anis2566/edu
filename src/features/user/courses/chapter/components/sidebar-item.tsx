@@ -2,9 +2,9 @@
 
 import { CheckCircle, Lock, PlayCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 interface CourseSidebarItemProps {
     label: string;
@@ -12,7 +12,6 @@ interface CourseSidebarItemProps {
     isCompleted: boolean;
     courseId: string;
     isLocked: boolean;
-    isPreviousChapterCompleted: boolean;
     purchased: boolean;
 }
 
@@ -22,12 +21,11 @@ export const CourseSidebarItem = ({
     isCompleted,
     courseId,
     isLocked,
-    isPreviousChapterCompleted,
     purchased,
 }: CourseSidebarItemProps) => {
     const pathname = usePathname();
 
-    const Icon = purchased ? isPreviousChapterCompleted ? PlayCircle : Lock : isLocked ? Lock : isCompleted ? CheckCircle : PlayCircle;
+    const Icon = purchased ? isCompleted ? CheckCircle : PlayCircle : isLocked ? Lock : PlayCircle;
     const isActive = pathname?.includes(id);
 
     return (

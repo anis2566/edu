@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Clock3, DollarSign } from "lucide-react";
-import { Category, Chapter, Course } from "@prisma/client";
+import { Course } from "@prisma/client";
 import { Rating } from "@smastrom/react-rating";
 import "@smastrom/react-rating/style.css";
 
@@ -28,7 +28,7 @@ interface Props {
     progress: number | null;
 }
 
-export const CourseCard = ({ course, isPurchased, totalReviews, isReviewed, progress }: Props) => {
+export const CourseCard = ({ course }: Props) => {
     return (
         <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
             <Link href={`/user/courses/${course.id}`}>

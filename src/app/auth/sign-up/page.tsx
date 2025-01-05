@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { SignUpForm } from "@/features/auth/components/sign-up-form";
 
@@ -9,14 +9,11 @@ export const metadata: Metadata = {
 }
 
 const SignUp = async () => {
-    // const user = await getCurrent();
-
-    // if (user) {
-    //     return redirect("/");
-    // }
 
     return (
-        <SignUpForm />
+        <Suspense fallback={<div>Loading...</div>}>
+            <SignUpForm />
+        </Suspense>
     )
 
 }

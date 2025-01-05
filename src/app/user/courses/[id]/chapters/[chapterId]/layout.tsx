@@ -69,13 +69,13 @@ const ChapterLayout = async ({ params, children }: Props) => {
         (validCompletedChapters / course.chapters.length) * 100 || 0;
 
     return (
-        <div className="flex">
+        <div className="flex relative">
             <CourseSidebar
                 course={course}
                 progressCount={progressPercentage}
                 purchased={!!isPurchased}
             />
-            <div className="flex-1">
+            <div className="flex-1 md:ml-[250px]">
                 <CourseNavbar course={course} purchased={isPurchased} />
                 {children}
             </div>

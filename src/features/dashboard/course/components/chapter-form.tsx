@@ -58,7 +58,7 @@ export const ChaptersForm = ({ chapters, courseId }: ChaptersFormProps) => {
         (updateData: { id: string; position: number }[]) => {
             reorderChapters({ json: { list: updateData } });
         },
-        []
+        [reorderChapters]
     );
 
     return (

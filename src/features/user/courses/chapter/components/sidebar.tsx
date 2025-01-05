@@ -19,11 +19,11 @@ interface Props {
     course: CourseWithCahpter;
     progressCount: number;
     purchased: boolean;
-}
+} 
 
 export const CourseSidebar = ({ course, progressCount, purchased }: Props) => {
     return (
-        <div className="hidden h-full flex-col overflow-y-auto border-r shadow-sm md:flex w-[250px]">
+        <div className="hidden h-full flex-col overflow-y-auto border-r shadow-sm md:flex w-[250px] fixed left-0 top-0">
             <div className="flex flex-col border-b px-8 py-4">
                 <h1 className="font-semibold w-full max-w-[200px] truncate">{course.title}</h1>
                 {purchased && (
@@ -33,7 +33,7 @@ export const CourseSidebar = ({ course, progressCount, purchased }: Props) => {
                 )}
             </div>
             <div className="flex w-full flex-col">
-                {course.chapters.map((chapter, index) => {
+                {course.chapters.map((chapter) => {
                     // let isPreviousChapterCompleted = false;
 
                     // if (index === 0) {
@@ -57,7 +57,6 @@ export const CourseSidebar = ({ course, progressCount, purchased }: Props) => {
                             isCompleted={!!chapter?.userProgress?.[0]?.isCompleted}
                             courseId={course.id}
                             isLocked={!chapter.isFree && !purchased}
-                            isPreviousChapterCompleted={false}
                             purchased={purchased}
                         />
                     )

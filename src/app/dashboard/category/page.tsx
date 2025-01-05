@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import {
     Breadcrumb,
@@ -35,7 +36,9 @@ const Category = () => {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <CategoryList />
+            <Suspense fallback={<div>Loading...</div>}>
+                <CategoryList />
+            </Suspense>
         </ContentLayout>
     );
 };
