@@ -107,6 +107,7 @@ model Course {
   isPublished Boolean  @default(false)
   tags        String[] @default([])
   rating      Float?
+  length      Int      @default(0)
 
   categoryId  String?  @db.ObjectId
   category    Category? @relation(fields: [categoryId], references: [id])

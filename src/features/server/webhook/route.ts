@@ -17,9 +17,9 @@ export const webhookRouter = new Hono()
                     return c.json({ success: false, message: "Invalid payload" }, 400);
                 }
 
-                const chapter = await db.chapter.findUnique({
+                const chapter = await db.chapter.findFirst({
                     where: {
-                        id: data.payload.id
+                        videoUrl: data.payload.id
                     }
                 })
 
@@ -27,13 +27,25 @@ export const webhookRouter = new Hono()
                     return c.json({ success: false, message: "Chapter not found" }, 404);
                 }
 
-                await db.chapter.update({
-                    where: {
-                        id: data.payload.id
-                    },
-                    data: {
-                        videoLength: data.payload.length
-                    }
+                await db.$transaction(async (tx) => {
+                    await tx.chapter.update({
+                        where: {
+                            id: data.payload.id
+                        },
+                        data: {
+                            videoLength: data.payload.length
+                        }
+                    })
+                    await tx.course.update({
+                        where: {
+                            id: chapter.courseId
+                        },
+                        data: {
+                            length: {
+                                increment: data.payload.length
+                            }
+                        }
+                    })
                 })
                 return c.json({ success: true, message: "Webhook processed successfully" }, 200);
             } catch (error) {
