@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import Image from "next/image"
 import { Send, Trash2 } from "lucide-react"
 import { Category } from "@prisma/client"
+import { toast } from "sonner"
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -12,9 +13,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { TagsInput } from "@/components/ui/tag-input"
-import { ImageUploader } from "@/components/ui/image-uploader"
-
 import { LoadingButton } from "@/components/loading-button"
+import { UploadDropzone } from "@/components/uploadthing"
+
 import { CategorySchema, CategorySchemaType } from "../schema"
 import { useUpdateCategory } from "../api/use-update-category"
 
@@ -94,10 +95,14 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
                                             </div>
                                         ) : (
                                             <FormControl>
-                                                <ImageUploader
-                                                    preset="category"
-                                                    onChange={values => {
-                                                        field.onChange(values[0])
+                                                <UploadDropzone
+                                                    endpoint="imageUploader"
+                                                    onClientUploadComplete={(res) => {
+                                                        field.onChange(res[0].url);
+                                                        toast.success("Image uploaded");
+                                                    }}
+                                                    onUploadError={(error: Error) => {
+                                                        toast.error("Image upload failed");
                                                     }}
                                                 />
                                             </FormControl>

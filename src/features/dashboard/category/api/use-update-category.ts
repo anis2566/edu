@@ -29,7 +29,7 @@ export const useUpdateCategory = () => {
                 toast.success(data.success, {
                     duration: 5000,
                 });
-                queryClient.invalidateQueries({ queryKey: ["category"] });
+                queryClient.invalidateQueries({ queryKey: ["categories"] });
                 router.push("/dashboard/category");
             }
 

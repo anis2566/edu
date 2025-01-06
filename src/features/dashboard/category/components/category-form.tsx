@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Send } from "lucide-react"
 import Image from "next/image"
 import { Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -15,8 +16,8 @@ import { TagsInput } from "@/components/ui/tag-input"
 
 import { LoadingButton } from "@/components/loading-button"
 import { CategorySchema, CategorySchemaType } from "../schema"
-import { ImageUploader } from "@/components/ui/image-uploader"
 import { useCreateCategory } from "../api/use-create-category"
+import { UploadDropzone } from "@/components/uploadthing"
 
 export const CategoryForm = () => {
     const { mutate, isPending } = useCreateCategory()
@@ -90,11 +91,16 @@ export const CategoryForm = () => {
                                             </div>
                                         ) : (
                                             <FormControl>
-                                                <ImageUploader
-                                                    preset="Category"
-                                                    onChange={values => {
-                                                        field.onChange(values[0])
+                                                <UploadDropzone
+                                                    endpoint="imageUploader"
+                                                    onClientUploadComplete={(res) => {
+                                                        field.onChange(res[0].url);
+                                                        toast.success("Image uploaded");
                                                     }}
+                                                    onUploadError={(error: Error) => {
+                                                        toast.error("Image upload failed");
+                                                    }}
+                                                    disabled={isPending}
                                                 />
                                             </FormControl>
                                         )

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Pencil, Trash } from "lucide-react";
 import { useState, useCallback } from "react";
 import { Attachment } from "@prisma/client";
+import { toast } from "sonner";
 
 import {
     Form,
@@ -24,10 +25,10 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCreateAttachment } from "../api/use-create-attachment";
 import { LoadingButton } from "@/components/loading-button";
 import { useDeleteAttachment } from "@/hooks/use-attachment";
+import { UploadDropzone } from "@/components/uploadthing";
 
 interface Props {
     attachments: Attachment[];
@@ -129,30 +130,17 @@ export const AttachmentsForm = ({ attachments, chapterId }: Props) => {
                                 <FormItem>
                                     <FormLabel>Attachment</FormLabel>
                                     <FormControl>
-                                        {field.value ? (
-                                            <div className="flex items-center gap-x-3">
-                                                <p>
-                                                    {form.watch("title")}
-                                                </p>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => form.setValue("url", "")}
-                                                    type="button"
-                                                    disabled={isPending}
-                                                >
-                                                    <Trash className="text-rose-500" />
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <ImageUploader
-                                                preset="Course"
-                                                clientAllowedFormats={["pdf"]}
-                                                onChange={values => {
-                                                    field.onChange(values[0])
-                                                }}
-                                            />
-                                        )}
+                                        <UploadDropzone
+                                            endpoint="pdfUploader"
+                                            onClientUploadComplete={(res) => {
+                                                field.onChange(res[0].url);
+                                                toast.success("Attachment uploaded");
+                                            }}
+                                            onUploadError={(error: Error) => {
+                                                toast.error("Attachment upload failed");
+                                            }}
+                                            disabled={isPending}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

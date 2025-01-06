@@ -7,6 +7,7 @@ import { Course } from "@prisma/client";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import {
     Form,
@@ -16,10 +17,10 @@ import {
     FormItem,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-
-import { ImageUploader } from "@/components/ui/image-uploader";
-import { useUpdateCourse } from "../api/use-update-course";
 import { LoadingButton } from "@/components/loading-button";
+import { UploadDropzone } from "@/components/uploadthing";
+
+import { useUpdateCourse } from "../api/use-update-course";
 
 interface ImageFormProps {
     initialData: Course;
@@ -117,11 +118,16 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
                                                     </Button>
                                                 </div>
                                             ) : (
-                                                <ImageUploader
-                                                    preset="Course"
-                                                    onChange={values => {
-                                                        field.onChange(values[0])
+                                                <UploadDropzone
+                                                    endpoint="imageUploader"
+                                                    onClientUploadComplete={(res) => {
+                                                        field.onChange(res[0].url);
+                                                        toast.success("Image uploaded");
                                                     }}
+                                                    onUploadError={() => {
+                                                        toast.error("Image upload failed");
+                                                    }}
+                                                    disabled={isPending}
                                                 />
                                             )}
                                         </FormControl>
