@@ -3,8 +3,8 @@ import { Hono } from "hono";
 import { z } from "zod";
 
 import { isAdmin } from "@/lib/session-middleware";
-import { CategorySchema } from "../schema";
 import { db } from "@/lib/db";
+import { CategorySchema } from "@/features/dashboard/category/schema";
 
 export const categoryRouter = new Hono()
     .post(
@@ -135,5 +135,24 @@ export const categoryRouter = new Hono()
                 },
             });
             return c.json({ categories });
+        }
+    )
+    .get(
+        "/forSelect",
+        zValidator("query", z.object({
+            query: z.string().optional(),
+        })),
+        async (c) => {
+            const { query } = c.req.valid("query");
+            const categories = await db.category.findMany({
+                where: {
+                    ...(query ? { name: { contains: query } } : {}),
+                },
+                orderBy: {
+                    createdAt: "desc",
+                },
+                take: 5,
+            });
+            return c.json(categories);
         }
     )

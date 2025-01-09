@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
+import { ImageIcon, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Chapter } from "@prisma/client";
 import Image from "next/image";
@@ -83,17 +83,37 @@ export const ThumbnailForm = ({ initialData, chapterId }: ThumbnailFormProps) =>
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <UploadDropzone
-                      endpoint="imageUploader"
-                      onClientUploadComplete={(res) => {
-                        field.onChange(res[0].url);
-                        toast.success("Image uploaded");
-                      }}
-                      onUploadError={() => {
-                        toast.error("Image upload failed");
-                      }}
-                      disabled={isPending}
-                    />
+                    {form.getValues("videoThumbnail") ? (
+                      <div className="relative mt-2 aspect-video">
+                        <Image
+                          alt="Upload"
+                          fill
+                          className="rounded-md object-cover"
+                          src={form.getValues("videoThumbnail")}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0"
+                          onClick={() => form.setValue("videoThumbnail", "")}
+                        >
+                          <Trash2 className="h-5 w-5 text-rose-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <UploadDropzone
+                        endpoint="imageUploader"
+                        onClientUploadComplete={(res) => {
+                          field.onChange(res[0].url);
+                          toast.success("Image uploaded");
+                        }}
+                        onUploadError={() => {
+                          toast.error("Image upload failed");
+                        }}
+                        disabled={isPending}
+                      />
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>

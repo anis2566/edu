@@ -278,7 +278,6 @@ export const chapterRouter = new Hono()
             }
         }
     )
-
     .get(
         "/videoOtp/:videoId",
         isAdmin,
@@ -511,5 +510,84 @@ export const chapterRouter = new Hono()
                 console.error(error);
                 return c.json({ error: "Internal server error" }, 500);
             }
+        }
+    )
+    .post(
+        "/question/:chapterId",
+        sessionMiddleware,
+        zValidator('param', z.object({ chapterId: z.string().min(1, { message: "required" }) })),
+        zValidator('json', z.object({ question: z.string().min(1, { message: "required" }) })),
+        async (c) => {
+            const { chapterId } = c.req.valid('param');
+            const body = c.req.valid('json');
+            const { userId } = c.get('user');
+
+            console.log(body);
+            console.log(chapterId);
+            console.log(userId);
+
+            try {
+                const chapter = await db.chapter.findUnique({
+                    where: { id: chapterId },
+                });
+
+                if (!chapter) {
+                    throw new Error("Chapter not found");
+                }
+
+                await db.question.create({
+                    data: {
+                        question: body.question,
+                        chapterId,
+                        userId,
+                    },
+                });
+
+                return c.json({ success: "Question submitted" }, 200);
+            } catch (error) {
+                console.error(error);
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        }
+    )
+    .get(
+        "/questions/:chapterId",
+        zValidator("param", z.object({ chapterId: z.string() })),
+        zValidator("query", z.object({ cursor: z.string().optional() })),
+        async (c) => {
+            const { chapterId } = c.req.valid("param");
+            const { cursor } = c.req.valid("query") || undefined;
+
+            const pageSize = 3;
+
+            const questions = await db.question.findMany({
+                where: { chapterId: chapterId },
+                include: {
+                    user: true,
+                    answers: {
+                        include: {
+                            user: true,
+                        }
+                    }
+                },
+                orderBy: { createdAt: "desc" },
+                take: -pageSize - 1,
+                cursor: cursor ? { id: cursor } : undefined,
+            });
+
+            const previousCursor = questions.length > pageSize ? questions[0].id : null;
+
+            const data = {
+                questions: questions.length > pageSize ? questions.slice(1) : questions,
+                previousCursor,
+            };
+
+            return c.json(data);
+        }
+    )
+    .get(
+        "/anis",
+        async (c) => {
+            return c.json({ success: true });
         }
     )

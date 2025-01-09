@@ -295,4 +295,4 @@ export const courseRouter = new Hono()
 
             return c.json({ courses: coursesWithProgress, nextCursor });
         }
-    )
+    ) 

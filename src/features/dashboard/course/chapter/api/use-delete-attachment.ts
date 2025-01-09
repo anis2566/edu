@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { client } from "@/lib/rpc";
 
 type RequestType = InferRequestType<
-    (typeof client.api.chapter.attachment)[":attachmentId"]["$delete"]
+    (typeof client.api.attachment)[":attachmentId"]["$delete"]
 >;
 type ResponseType = InferResponseType<
-    (typeof client.api.chapter.attachment)[":attachmentId"]["$delete"]
+    (typeof client.api.attachment)[":attachmentId"]["$delete"]
 >;
 
 interface Props {
@@ -21,7 +21,7 @@ export const useDeleteAttachment = ({ onClose }: Props) => {
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
-            const res = await client.api.chapter.attachment[":attachmentId"]["$delete"]({
+            const res = await client.api.attachment[":attachmentId"]["$delete"]({
                 param: { attachmentId: param.attachmentId },
             });
             return await res.json();

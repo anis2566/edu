@@ -4,9 +4,14 @@ import { cors } from "hono/cors";
 import { createRouteHandler } from 'uploadthing/server';
 
 import { authRouter } from '@/features/auth/server/route';
-import { categoryRouter } from '@/features/dashboard/category/server/route';
+import { categoryRouter } from '@/server/category/route';
 import { courseRouter } from '@/features/dashboard/course/server/route';
 import { chapterRouter } from '@/features/dashboard/course/chapter/server/route';
+import { attachmentRouter } from '@/server/attachment/route';
+import { videoCipherRouter } from '@/server/video-cipher/route';
+import { questionRouter } from '@/server/question/route';
+import { answerRouter } from '@/server/answer/route';
+import { assignmentRouter } from '@/server/assignment/route';
 import { paymentRouter } from '@/features/server/routes/payment/route';
 import { webhookRouter } from '@/features/server/webhook/route';
 import { uploadRouter } from '@/lib/uploadthing';
@@ -23,8 +28,13 @@ const app = new Hono()
     .route('/category', categoryRouter)
     .route('/course', courseRouter)
     .route('/chapter', chapterRouter)
+    .route('/attachment', attachmentRouter)
+    .route('/videoCipher', videoCipherRouter)
+    .route('/question', questionRouter)
+    .route('/answer', answerRouter)
     .route('/payment', paymentRouter)
     .route('/webhooks', webhookRouter)
+    .route('/assignment', assignmentRouter)
 
 export const GET = handle(app)
 export const POST = handle(app)

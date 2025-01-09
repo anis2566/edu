@@ -1,4 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+
+import { LoadingButton } from "@/components/loading-button";
 
 interface AttachmentsProps {
     attachments: {
@@ -9,14 +11,25 @@ interface AttachmentsProps {
 }
 
 export const Attachments = ({ attachments }: AttachmentsProps) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const handleDownload = (url: string, filename: string) => {
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownload = async (url: string, filename: string) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            setIsLoading(false)
+            console.error("Download failed", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -27,9 +40,13 @@ export const Attachments = ({ attachments }: AttachmentsProps) => {
                     className="flex items-center justify-between rounded-md border p-2"
                 >
                     <p className="text-muted-foreground">{item.title}</p>
-                    <Button onClick={() => handleDownload(item.url, item.title)}>
-                        Download
-                    </Button>
+                    <LoadingButton
+                        type="button"
+                        isLoading={isLoading}
+                        title="Download"
+                        loadingTitle="Downloading..."
+                        onClick={() => handleDownload(item.url, item.title)}
+                    />
                 </div>
             ))}
         </div>

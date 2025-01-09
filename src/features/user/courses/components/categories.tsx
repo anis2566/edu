@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { cn } from "@/lib/utils";
-import { useGetAllCategory } from "@/features/dashboard/category/api/use-get-all-category";
+import { useGetAllCategory } from "../api/use-get-categories";
 
 export const Categories = () => {
     const pathname = usePathname();

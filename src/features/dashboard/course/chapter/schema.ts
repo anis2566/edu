@@ -8,3 +8,11 @@ export const ChapterSchema = z.object({
     isFree: z.boolean().default(false),
 });
 export type ChapterSchemaType = z.infer<typeof ChapterSchema>;
+
+
+export const AssignmentSchema = z.object({
+    title: z.string().min(1, { message: "required" }),
+    dueDate: z.date().optional(),
+    fileUrl: z.string().min(1, { message: "required" }),
+});
+export type AssignmentSchemaType = z.infer<typeof AssignmentSchema>;

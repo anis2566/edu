@@ -4,22 +4,25 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { client } from "@/lib/rpc";
+import { UseFormReturn } from "react-hook-form";
 
-type ResponseType = InferResponseType<typeof client.api.chapter.attachment.$post>;
-type RequestType = InferRequestType<
-    typeof client.api.chapter.attachment.$post
->["json"];
+type ResponseType = InferResponseType<typeof client.api.attachment[":chapterId"]["$post"]>;
+type RequestType = InferRequestType<typeof client.api.attachment[":chapterId"]["$post"]>
 
 interface UseCreateAttachmentProps {
     toggleEdit: () => void;
+    form: UseFormReturn<{ title: string; url: string }>
 }
 
-export const useCreateAttachment = ({ toggleEdit }: UseCreateAttachmentProps) => {
+export const useCreateAttachment = ({ toggleEdit, form }: UseCreateAttachmentProps) => {
     const router = useRouter();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async (json) => {
-            const res = await client.api.chapter.attachment.$post({ json });
+        mutationFn: async ({ json, param }) => {
+            const res = await client.api.attachment[":chapterId"]["$post"]({
+                param,
+                json,
+            });
             return await res.json();
         },
         onSuccess: (data) => {
@@ -28,6 +31,7 @@ export const useCreateAttachment = ({ toggleEdit }: UseCreateAttachmentProps) =>
                     duration: 5000,
                 });
                 router.refresh();
+                form.reset();
                 toggleEdit();
             }
 

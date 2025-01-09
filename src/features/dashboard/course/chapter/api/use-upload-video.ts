@@ -6,9 +6,9 @@ import { Dispatch, SetStateAction } from "react";
 
 import { client } from "@/lib/rpc";
 
-type ResponseType = InferResponseType<typeof client.api.chapter.uploadVideo[":chapterId"]["$post"]>;
+type ResponseType = InferResponseType<typeof client.api.videoCipher[":chapterId"]["$post"]>;
 type RequestType = InferRequestType<
-    typeof client.api.chapter.uploadVideo[":chapterId"]["$post"]
+    typeof client.api.videoCipher[":chapterId"]["$post"]
 >
 
 interface UploadVideoParams {
@@ -21,7 +21,7 @@ export const useUploadVideo = ({ onClose, setIsEditing }: UploadVideoParams) => 
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ form, param }) => {
-            const res = await client.api.chapter.uploadVideo[":chapterId"]["$post"]({
+            const res = await client.api.videoCipher[":chapterId"]["$post"]({
                 param,
                 form,
             });

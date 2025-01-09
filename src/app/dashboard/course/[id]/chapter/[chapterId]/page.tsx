@@ -33,6 +33,7 @@ const Chapter = async ({ params }: Props) => {
     },
     include: {
       attachments: true,
+      assignment: true,
     },
   });
 
@@ -60,7 +61,12 @@ const Chapter = async ({ params }: Props) => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <ChapterForm chapter={chapter} attachments={chapter.attachments} courseId={id} />
+      <ChapterForm
+        chapter={chapter}
+        attachments={chapter.attachments}
+        courseId={id}
+        assignment={chapter.assignment}
+      />
     </ContentLayout>
   );
 };

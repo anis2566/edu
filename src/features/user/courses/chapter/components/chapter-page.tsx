@@ -8,6 +8,8 @@ import { useGetChapter } from "@/features/dashboard/course/chapter/api/use-get-c
 import { ChapterSummary } from "./chapter-summary";
 import { Attachments } from "./attachments";
 import { secondsToHMS } from "@/lib/utils";
+import { Questions } from "./questions";
+import { AssignmentList } from "./assignment-list";
 
 interface Props {
     chapterId: string
@@ -56,22 +58,24 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
                         title={data?.course?.title ?? ""}
                     />
                 </div>
-                <ChapterSummary videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
+                <ChapterSummary description={data?.chapter?.description ?? ""} videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
             </div>
 
-            <Tabs defaultValue="description" className="w-full pt-6">
+            <Tabs defaultValue="attachments" className="w-full pt-6">
                 <TabsList className="w-full">
-                    <TabsTrigger value="description">Description</TabsTrigger>
                     <TabsTrigger value="attachments">Attachments</TabsTrigger>
+                    <TabsTrigger value="assignment">Assignment</TabsTrigger>
                     <TabsTrigger value="questions">Questions</TabsTrigger>
                 </TabsList>
-                <TabsContent value="description">
-                    <p>{data?.chapter?.description}</p>
-                </TabsContent>
                 <TabsContent value="attachments">
                     <Attachments attachments={data?.chapter?.attachments ?? []} />
                 </TabsContent>
-                <TabsContent value="questions">Change your password here.</TabsContent>
+                <TabsContent value="assignment">
+                    {/* <AssignmentList assignment={data?.chapter?.as ?? null} /> */}
+                </TabsContent>
+                <TabsContent value="questions">
+                    <Questions chapterId={chapterId} />
+                </TabsContent>
             </Tabs>
 
         </div>

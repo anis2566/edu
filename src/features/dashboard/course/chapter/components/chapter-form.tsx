@@ -2,12 +2,13 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Eye,
+  FileText,
   LayoutDashboard,
   LucideIcon,
   Paperclip,
   Video,
 } from "lucide-react";
-import { Chapter, Attachment } from "@prisma/client";
+import { Chapter, Attachment, Assignment } from "@prisma/client";
 
 import { IconBadge } from "@/components/icon-badge";
 import { TitleForm } from "./title-form";
@@ -18,14 +19,16 @@ import { AttachmentsForm } from "./attachment-form";
 import { VideoForm } from "./video-form";
 import { Banner } from "@/components/banner";
 import { Actions } from "./action";
+import { AssignmentForm } from "./assignment-form";
 
 interface Props {
   chapter: Chapter;
   attachments: Attachment[];
+  assignment: Assignment | null;
   courseId: string;
 }
 
-export const ChapterForm = async ({ chapter, attachments, courseId }: Props) => {
+export const ChapterForm = async ({ chapter, attachments, assignment, courseId }: Props) => {
   const requiredFields = [
     chapter.title,
     chapter.description,
@@ -100,12 +103,12 @@ export const ChapterForm = async ({ chapter, attachments, courseId }: Props) => 
             />
           </Section>
 
-          {/* <Section title="Assignments" icon={FileText}>
+          <Section title="Assignments" icon={FileText}>
             <AssignmentForm
               chapterId={chapter.id}
               assignment={assignment}
             />
-          </Section> */}
+          </Section>
         </div>
 
         <div>

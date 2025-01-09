@@ -14,6 +14,7 @@ export const useGetChapter = (chapterId: string) => {
                 param: { chapterId },
             });
             const parseData = await res.json();
+            console.log(parseData);
             return parseData;
         },
     });

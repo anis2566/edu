@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, Eye } from "lucide-react";
 import { useState, useCallback } from "react";
 import { Attachment } from "@prisma/client";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ import { useCreateAttachment } from "../api/use-create-attachment";
 import { LoadingButton } from "@/components/loading-button";
 import { useDeleteAttachment } from "@/hooks/use-attachment";
 import { UploadDropzone } from "@/components/uploadthing";
+import Link from "next/link";
 
 interface Props {
     attachments: Attachment[];
@@ -47,15 +48,16 @@ export const AttachmentsForm = ({ attachments, chapterId }: Props) => {
 
     const { onOpen } = useDeleteAttachment();
 
-    const { mutate: createAttachment, isPending } = useCreateAttachment({ toggleEdit });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: { title: "", url: "" },
     });
 
+    const { mutate: createAttachment, isPending } = useCreateAttachment({ toggleEdit, form });
+
     const onSubmit = (values: z.infer<typeof formSchema>) => {
-        createAttachment({ title: values.title, url: values.url, chapterId });
+        createAttachment({ json: { title: values.title, url: values.url }, param: { chapterId } });
     };
 
     return (
@@ -85,23 +87,41 @@ export const AttachmentsForm = ({ attachments, chapterId }: Props) => {
                             <p>
                                 {item.title}
                             </p>
-                            <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="destructive"
-                                            size="icon"
-                                            className="flex-shrink-0"
-                                            onClick={() => onOpen(item.id)}
-                                        >
-                                            <Trash className="h-5 w-5" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Delete attachment</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <div className="flex items-center gap-x-2">
+                                {item.url && (
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button asChild variant="outline" size="icon">
+                                                    <Link href={item.url} target="_blank">
+                                                        <Eye className="h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>View File</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                )}
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                variant="destructive"
+                                                size="icon"
+                                                className="flex-shrink-0"
+                                                onClick={() => onOpen(item.id)}
+                                            >
+                                                <Trash className="h-5 w-5" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Delete attachment</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -130,17 +150,34 @@ export const AttachmentsForm = ({ attachments, chapterId }: Props) => {
                                 <FormItem>
                                     <FormLabel>Attachment</FormLabel>
                                     <FormControl>
-                                        <UploadDropzone
-                                            endpoint="pdfUploader"
-                                            onClientUploadComplete={(res) => {
-                                                field.onChange(res[0].url);
-                                                toast.success("Attachment uploaded");
-                                            }}
-                                            onUploadError={(error: Error) => {
-                                                toast.error("Attachment upload failed");
-                                            }}
-                                            disabled={isPending}
-                                        />
+                                        {field.value ? (
+                                            <div className="flex items-center gap-x-3">
+                                                <Link href={field.value} target="_blank" className="hover:underline">
+                                                    View File
+                                                </Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => form.setValue("url", "")}
+                                                    type="button"
+                                                    disabled={isPending}
+                                                >
+                                                    <Trash className="text-rose-500" />
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <UploadDropzone
+                                                endpoint="pdfUploader"
+                                                onClientUploadComplete={(res) => {
+                                                    field.onChange(res[0].url);
+                                                    toast.success("Attachment uploaded");
+                                                }}
+                                                onUploadError={(error: Error) => {
+                                                    toast.error("Attachment upload failed");
+                                                }}
+                                                disabled={isPending}
+                                            />
+                                        )}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
