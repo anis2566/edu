@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 
 import { client } from "@/lib/rpc";
 
-export const useGetCoursesHome = () => {
+export const useGetCourses = () => {
     const searchParams = useSearchParams();
     const cursor = searchParams.get("cursor") || undefined;
     const sort = searchParams.get("sort") || undefined;

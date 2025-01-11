@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { LoadingButton } from "@/components/loading-button"
 
 import { useQuestionReplyUser } from "@/hooks/use-question"
-import { useCreateAnswer } from "@/features/dashboard/question/api/use-create-answer"
+import { useCreateAnswer } from "../api/use-create-answer"
 
 const schema = z.object({
     answer: z.string().min(1, { message: "Answer is required" }),

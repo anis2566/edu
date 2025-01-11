@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { toast } from "sonner";
 
 import { client } from "@/lib/rpc";
+import { useRouter } from "next/navigation";
 
 type RequestType = InferRequestType<
     (typeof client.api.chapter)[":chapterId"]["$delete"]
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export const useDeleteChapter = ({ onClose }: Props) => {
+    const router = useRouter()
+
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
             const res = await client.api.chapter[":chapterId"]["$delete"]({
@@ -27,6 +30,7 @@ export const useDeleteChapter = ({ onClose }: Props) => {
             if ("success" in data) {
                 toast.success(data.success, { duration: 5000 });
                 onClose();
+                router.push(`/dashboard/course/${data.courseId}`)
             }
 
             if ("error" in data) {

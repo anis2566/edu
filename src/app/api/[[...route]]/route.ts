@@ -5,8 +5,6 @@ import { createRouteHandler } from 'uploadthing/server';
 
 import { authRouter } from '@/features/auth/server/route';
 import { categoryRouter } from '@/server/category/route';
-import { courseRouter } from '@/features/dashboard/course/server/route';
-import { chapterRouter } from '@/features/dashboard/course/chapter/server/route';
 import { attachmentRouter } from '@/server/attachment/route';
 import { videoCipherRouter } from '@/server/video-cipher/route';
 import { questionRouter } from '@/server/question/route';
@@ -15,6 +13,8 @@ import { assignmentRouter } from '@/server/assignment/route';
 import { paymentRouter } from '@/features/server/routes/payment/route';
 import { webhookRouter } from '@/features/server/webhook/route';
 import { uploadRouter } from '@/lib/uploadthing';
+import { courseRouter } from '@/server/course/route';
+import { chapterRouter } from '@/server/chapter/route';
 
 const handlers = createRouteHandler({
     router: uploadRouter,

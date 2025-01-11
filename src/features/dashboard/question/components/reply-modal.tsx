@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 
 import { useDeleteAnswer, useQuestionReply } from "@/hooks/use-question"
 import { LoadingButton } from "@/components/loading-button"
-import { useCreateAnswer } from "../api/use-create-answer"
+import { useCreateAnswer } from "@/features/user/courses/chapter/api/use-create-answer"
 
 const schema = z.object({
     answer: z.string().min(1, { message: "Answer is required" }),

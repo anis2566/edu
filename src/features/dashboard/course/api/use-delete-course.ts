@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { toast } from "sonner";
 
@@ -16,6 +16,8 @@ interface Props {
 }
 
 export const useDeleteCourse = ({ onClose }: Props) => {
+    const queryClient = useQueryClient()
+
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
             const res = await client.api.course[":courseId"]["$delete"]({
@@ -26,6 +28,9 @@ export const useDeleteCourse = ({ onClose }: Props) => {
         onSuccess: (data) => {
             if ("success" in data) {
                 toast.success(data.success, { duration: 5000 });
+                queryClient.invalidateQueries({
+                    queryKey: ["courses"]
+                })
                 onClose();
             }
 

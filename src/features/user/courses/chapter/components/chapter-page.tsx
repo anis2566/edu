@@ -4,12 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { Banner } from "@/components/banner";
 import { CoursePlayer } from "@/components/course-player";
-import { useGetChapter } from "@/features/dashboard/course/chapter/api/use-get-chapter";
 import { ChapterSummary } from "./chapter-summary";
 import { Attachments } from "./attachments";
 import { secondsToHMS } from "@/lib/utils";
 import { Questions } from "./questions";
 import { AssignmentList } from "./assignment-list";
+import { useGetChapter } from "../api/use-get-chapter";
 
 interface Props {
     chapterId: string
@@ -71,7 +71,7 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
                     <Attachments attachments={data?.chapter?.attachments ?? []} />
                 </TabsContent>
                 <TabsContent value="assignment">
-                    {/* <AssignmentList assignment={data?.chapter?.as ?? null} /> */}
+                    <AssignmentList assignment={data?.chapter?.assignment ?? null} />
                 </TabsContent>
                 <TabsContent value="questions">
                     <Questions chapterId={chapterId} />

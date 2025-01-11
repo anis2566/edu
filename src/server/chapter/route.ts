@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
+import axios from "axios";
 
 import { db } from "@/lib/db";
 import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
@@ -150,9 +151,28 @@ export const chapterRouter = new Hono()
                     return c.json({ error: "Chapter not found" }, 404);
                 }
 
+                if (chapter.videoUrl) {
+                    const videoIds = chapter.videoUrl.split(',');
+                    const deleteRes = await axios.delete(
+                        `https://dev.vdocipher.com/api/videos`,
+                        {
+                            params: { videos: videoIds.join(',') },
+                            headers: {
+                                Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`,
+                                "Content-Type": "application/json",
+                                Accept: "application/json",
+                            },
+                        }
+                    );
+
+                    if (deleteRes.status !== 200) {
+                        return c.json({ error: "Failed to delete existing videos" }, 400);
+                    }
+                }
+
                 await db.chapter.delete({ where: { id: chapterId } });
 
-                return c.json({ success: "Chapter deleted" }, 200);
+                return c.json({ success: "Chapter deleted", courseId: chapter.courseId }, 200);
             } catch (error) {
                 console.error(error);
                 return c.json({ error: "Internal server error" }, 500);

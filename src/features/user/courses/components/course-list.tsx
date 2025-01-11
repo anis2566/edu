@@ -2,15 +2,15 @@
 
 import { Loader2 } from "lucide-react";
 
-import { useGetCoursesHome } from "@/features/dashboard/course/api/use-get-courses-home";
 import { Categories } from "./categories"
 import { Search } from "./search"
 import { CourseCard, CourseCardSkeleton } from "@/components/course-card";
 import InfiniteScrollContainer from "@/components/infinite-scroll-container";
 import { EmptyStat } from "@/components/empty-stat";
+import { useGetCourses } from "../api/use-get-courses";
 
 export const CourseList = () => {
-    const { courses, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useGetCoursesHome();
+    const { courses, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useGetCourses();
 
     return (
         <div className="space-y-6">
@@ -18,7 +18,7 @@ export const CourseList = () => {
             <Search />
 
             {
-                courses.length === 0 && <EmptyStat title="No courses found" description="Please try to search with similar keyword" />
+                status !== "pending" && courses.length === 0 && <EmptyStat title="No courses found" description="Please try to search with similar keyword" />
             }
 
             {

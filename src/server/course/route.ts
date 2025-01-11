@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
+import axios from "axios";
 
 import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
 import { db } from "@/lib/db";
@@ -111,10 +112,34 @@ export const courseRouter = new Hono()
             try {
                 const course = await db.course.findUnique({
                     where: { id: courseId },
+                    include: {
+                        chapters: true
+                    }
                 });
 
                 if (!course) {
                     return c.json({ error: "Course not found" }, 404);
+                }
+
+                for (const chapter of course.chapters) {
+                    if (chapter.videoUrl) {
+                        const videoIds = chapter.videoUrl.split(',');
+                        const deleteRes = await axios.delete(
+                            `https://dev.vdocipher.com/api/videos`,
+                            {
+                                params: { videos: videoIds.join(',') },
+                                headers: {
+                                    Authorization: `Apisecret ${process.env.VIDEO_CIPHER_SECRET}`,
+                                    "Content-Type": "application/json",
+                                    Accept: "application/json",
+                                },
+                            }
+                        );
+
+                        if (deleteRes.status !== 200) {
+                            return c.json({ error: "Failed to delete existing videos" }, 400);
+                        }
+                    }
                 }
 
                 await db.course.delete({ where: { id: courseId } });
