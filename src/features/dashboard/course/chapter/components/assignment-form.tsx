@@ -3,12 +3,11 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { CalendarIcon, Eye, Pencil, Trash, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Assignment } from "@prisma/client";
 import Link from "next/link";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 import {
     Form,
@@ -27,10 +26,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 
-import { cn } from "@/lib/utils";
 import { AssignmentSchema, AssignmentSchemaType } from "../schema";
 import { UploadButton } from "@/components/uploadthing";
 import { useCreateAssignment } from "../api/use-create-assignment";
@@ -53,7 +49,6 @@ export const AssignmentForm = ({ chapterId, assignment }: Props) => {
         resolver: zodResolver(AssignmentSchema),
         defaultValues: {
             title: "",
-            dueDate: undefined,
             fileUrl: "",
         },
     });
@@ -148,45 +143,6 @@ export const AssignmentForm = ({ chapterId, assignment }: Props) => {
                                     <FormControl>
                                         <Input disabled={isPending} {...field} />
                                     </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="dueDate"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Due Date</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PPP")
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                    date < new Date()
-                                                }
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}

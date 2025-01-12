@@ -10,6 +10,7 @@ import { secondsToHMS } from "@/lib/utils";
 import { Questions } from "./questions";
 import { AssignmentList } from "./assignment-list";
 import { useGetChapter } from "../api/use-get-chapter";
+import { AssignmentSummary } from "./assignment-summary";
 
 interface Props {
     chapterId: string
@@ -58,26 +59,36 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
                         title={data?.course?.title ?? ""}
                     />
                 </div>
-                <ChapterSummary description={data?.chapter?.description ?? ""} videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
+                <div className="space-y-4">
+                    <ChapterSummary description={data?.chapter?.description ?? ""} videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
+                    {
+                        isPurchased && (
+                            <AssignmentSummary title={data?.chapter?.assignment?.title ?? ""} status={"PENDING"} />
+                        )
+                    }
+                </div>
             </div>
 
-            <Tabs defaultValue="attachments" className="w-full pt-6">
-                <TabsList className="w-full">
-                    <TabsTrigger value="attachments">Attachments</TabsTrigger>
-                    <TabsTrigger value="assignment">Assignment</TabsTrigger>
-                    <TabsTrigger value="questions">Questions</TabsTrigger>
-                </TabsList>
-                <TabsContent value="attachments">
-                    <Attachments attachments={data?.chapter?.attachments ?? []} />
-                </TabsContent>
-                <TabsContent value="assignment">
-                    <AssignmentList assignment={data?.chapter?.assignment ?? null} />
-                </TabsContent>
-                <TabsContent value="questions">
-                    <Questions chapterId={chapterId} />
-                </TabsContent>
-            </Tabs>
-
+            {
+                isPurchased && (
+                    <Tabs defaultValue="attachments" className="w-full pt-6">
+                        <TabsList className="w-full">
+                            <TabsTrigger value="attachments">Attachments</TabsTrigger>
+                            <TabsTrigger value="assignment">Assignment</TabsTrigger>
+                            <TabsTrigger value="questions">Questions</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="attachments">
+                            <Attachments attachments={data?.chapter?.attachments ?? []} />
+                        </TabsContent>
+                        <TabsContent value="assignment">
+                            <AssignmentList assignment={data?.chapter?.assignment ?? null} />
+                        </TabsContent>
+                        <TabsContent value="questions">
+                            <Questions chapterId={chapterId} />
+                        </TabsContent>
+                    </Tabs>
+                )
+            }
         </div>
     )
 }

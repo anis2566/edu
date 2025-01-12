@@ -22,7 +22,7 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <Logo callbackUrl="/dashboard" />
+                        <Logo callbackUrl="/user" />
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

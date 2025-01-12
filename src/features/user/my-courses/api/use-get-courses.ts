@@ -8,14 +8,13 @@ export const useGetCourses = () => {
     const cursor = searchParams.get("cursor") || undefined;
     const sort = searchParams.get("sort") || undefined;
     const query = searchParams.get("query") || undefined;
-    const category = searchParams.get("category") || undefined;
 
     const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
         useInfiniteQuery({
-            queryKey: ["courses-home", cursor, sort, query, category],
+            queryKey: ["my-courses", cursor, sort, query],
             queryFn: async () => {
-                const res = await client.api.course.home["$get"]({
-                    query: { cursor, sort, query, category },
+                const res = await client.api.course.my["$get"]({
+                    query: { cursor, sort, query },
                 });
                 const parseData = await res.json();
                 return {

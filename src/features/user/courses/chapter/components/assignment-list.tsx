@@ -8,7 +8,6 @@ import { LoadingButton } from "@/components/loading-button";
 type AssignmentWithExtended = Omit<Assignment, 'createdAt' | 'updatedAt' | "dueDate"> & {
     createdAt: string;
     updatedAt: string;
-    dueDate: string | null;
 };
 
 interface Props {
@@ -36,6 +35,10 @@ export const AssignmentList = ({ assignment }: Props) => {
             setIsLoading(false);
         }
     };
+
+    if (!assignment) {
+        return <p className="text-muted-foreground text-center py-4">No assignments available.</p>
+    }
 
     return (
         <div className="space-y-5">

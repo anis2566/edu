@@ -36,8 +36,8 @@ export const paymentRouter = new Hono()
                     tran_id: transactionId,
                     currency: "BDT",
                     success_url: `http://localhost:3000/api/payment/success?courseId=${courseId}&userId=${userId}`,
-                    fail_url: `http://localhost:3000/api/payment/cancel`,
-                    cancel_url: `http://localhost:3000/api/payment/cancel`,
+                    fail_url: `http://localhost:3000/api/payment/failed?courseId=${courseId}`,
+                    cancel_url: `http://localhost:3000/api/payment/failed?courseId=${courseId}`,
                     desc: "Lend Money",
                     type: "json",
                 });
@@ -99,11 +99,24 @@ export const paymentRouter = new Hono()
                     },
                 });
 
-                return c.redirect(`/user/courses/${courseId}`);
+                return c.redirect(`/payment/success?callback=/user/courses/${courseId}`);
             }
 
             return c.redirect("/user/courses");
         }
-    );
+    )
+    .post(
+        "/failed",
+        zValidator(
+            "query",
+            z.object({
+                courseId: z.string(),
+            }),
+        ),
+        async (c) => {
+            const { courseId } = c.req.valid("query");
+            return c.redirect(`/payment/failed?callback=/user/courses/${courseId}`);
+        }
+    )
 
 

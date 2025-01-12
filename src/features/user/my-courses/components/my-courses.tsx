@@ -2,19 +2,17 @@
 
 import { Loader2 } from "lucide-react";
 
-import { Categories } from "./categories"
-import { Search } from "./search"
 import { CourseCard, CourseCardSkeleton } from "@/components/course-card";
 import InfiniteScrollContainer from "@/components/infinite-scroll-container";
 import { EmptyStat } from "@/components/empty-stat";
+import { Search } from "../../courses/components/search";
 import { useGetCourses } from "../api/use-get-courses";
 
-export const CourseList = () => {
+export const Courses = () => {
     const { courses, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useGetCourses();
 
     return (
         <div className="space-y-6">
-            <Categories />
             <Search />
 
             {

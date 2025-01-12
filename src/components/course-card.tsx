@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { IconBadge } from "./icon-badge";
 import { Button } from "./ui/button";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, secondsToHMS } from "@/lib/utils";
+import { CourseProgress } from "@/features/user/courses/chapter/components/course-progress";
 
 export type CourseWithExtended = Omit<Course, 'createdAt' | 'updatedAt'> & {
     createdAt: string;
@@ -28,7 +29,7 @@ interface Props {
     progress: number | null;
 }
 
-export const CourseCard = ({ course }: Props) => {
+export const CourseCard = ({ course, progress }: Props) => {
     return (
         <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
             <Link href={`/user/courses/${course.id}`}>
@@ -59,14 +60,9 @@ export const CourseCard = ({ course }: Props) => {
                         </div>
                         <div className="flex items-center gap-x-1">
                             <IconBadge size="sm" icon={Clock3} />
-                            {/* <span>
-                {getVideoLength(
-                  course.chapters.reduce(
-                    (acc, chapter) => acc + (chapter.videoLength || 0),
-                    0,
-                  ),
-                )}
-              </span> */}
+                            <span>
+                                {secondsToHMS(course.length)}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -84,30 +80,14 @@ export const CourseCard = ({ course }: Props) => {
                     </div>
                 )
             }
-            {/* {purchased || course.progress ? (
-        <CourseProgress
-          variant={course.progress === 100 ? "success" : "default"}
-          size="sm"
-          value={course.progress || 0}
-        />
-      ) : (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-x-1">
-            <IconBadge size="sm" icon={DollarSign} />
-            <span>{formatPrice(course.price || 0)}</span>
-          </div>
-          <Button onClick={handleEnroll} disabled={isPending}>
-            {isPending ? "Loading..." : "Buy"}
-          </Button>
-        </div>
-      )} */}
-            {/* {
-        purchased && !isReviewed && (
-          <Button variant="outline" size="sm" className="mt-4" onClick={() => onOpen(course.id)}>
-            Leave a Review
-          </Button>
-        )
-      } */}
+            {progress && progress > 0 ? (
+                <CourseProgress
+                    variant={progress === 100 ? "success" : "default"}
+                    size="sm"
+                    value={progress || 0}
+                />
+            ) : null
+            }
         </div>
     );
 };

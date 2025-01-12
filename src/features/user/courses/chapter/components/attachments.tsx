@@ -32,6 +32,10 @@ export const Attachments = ({ attachments }: AttachmentsProps) => {
         }
     };
 
+    if (attachments.length === 0) {
+        return <p className="text-muted-foreground text-center py-4">No attachments available.</p>
+    }
+
     return (
         <div className="space-y-4">
             {attachments?.map((item) => (
