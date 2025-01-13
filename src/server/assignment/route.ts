@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { AssignmentSchema } from "@/features/dashboard/course/chapter/schema";
 import { db } from "@/lib/db";
-import { isAdmin } from "@/lib/session-middleware";
+import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
 
 export const assignmentRouter = new Hono()
     .post(
@@ -64,4 +64,5 @@ export const assignmentRouter = new Hono()
             }
         }
     )
+
 

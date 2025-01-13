@@ -1,5 +1,7 @@
 "use client"
 
+import { SubmissionStatus } from "@prisma/client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { Banner } from "@/components/banner";
@@ -63,7 +65,7 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
                     <ChapterSummary description={data?.chapter?.description ?? ""} videoLength={secondsToHMS(data?.chapter?.videoLength ?? 0)} attachments={data?.chapter?.attachments?.length ?? 0} questions={3} />
                     {
                         isPurchased && (
-                            <AssignmentSummary title={data?.chapter?.assignment?.title ?? ""} status={"PENDING"} />
+                            <AssignmentSummary assignmentId={data?.chapter?.assignment?.id ?? ""} hasSubmitted={data?.hasSubmitted ?? false} hasAssignment={data?.hasAssignment ?? false} status={data?.status as SubmissionStatus} />
                         )
                     }
                 </div>

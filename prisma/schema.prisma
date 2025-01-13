@@ -6,6 +6,12 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+enum SubmissionStatus {
+  Pending
+  Approved
+  Rejected
+}
  
 model User {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
@@ -23,6 +29,7 @@ model User {
   purchases     Purchase[]
   questions     Question[]
   questionAnswers QuestionAnswer[]
+  submissions   Submission[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -139,9 +146,23 @@ model Chapter {
   userProgress  UserProgress[]
   questions     Question[]
   assignment   Assignment?
+  exams         Exam[]
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+}
+
+model Exam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  marks       Int
+  duration    Int
+
+  chapterId   String   @db.ObjectId
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Question {
@@ -202,10 +223,31 @@ model Assignment {
   chapterId   String   @db.ObjectId
   chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
+  submissions   Submission[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([chapterId])
+}
+
+model Submission {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  fileUrl      String
+  feedback     String?
+  status       SubmissionStatus @default(Pending)
+
+  assignmentId String   @db.ObjectId
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([assignmentId])
 }
 
 model UserProgress {

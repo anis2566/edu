@@ -228,7 +228,18 @@ export const chapterRouter = new Hono()
                             },
                         },
                         attachments: true,
-                        assignment: true
+                        assignment: {
+                            include: {
+                                submissions: {
+                                    where: {
+                                        userId,
+                                    },
+                                    orderBy: {
+                                        createdAt: "desc",
+                                    },
+                                },
+                            },
+                        }
                     },
                 });
 
@@ -269,7 +280,11 @@ export const chapterRouter = new Hono()
                     isLocked = false;
                 }
 
-                return c.json({ success: true, isPurchased, chapter, userProgress, previousChapter, nextChapter, isLocked, course }, 200);
+                const hasAssignment = chapter.assignment?.id !== null;
+                const hasSubmitted = chapter.assignment?.submissions?.length ?? 0 > 0 ? true : false;
+                const status = chapter.assignment?.submissions[0]?.status ?? "";
+
+                return c.json({ success: true, isPurchased, chapter, userProgress, previousChapter, nextChapter, isLocked, course, hasAssignment, hasSubmitted, status }, 200);
             } catch (error) {
                 console.error(error);
                 return c.json({
@@ -281,6 +296,9 @@ export const chapterRouter = new Hono()
                     nextChapter: null,
                     isLocked: true,
                     course: null,
+                    hasAssignment: false,
+                    hasSubmitted: false,
+                    status: "",
                 }, 500);
             }
         }

@@ -16,6 +16,7 @@ import {
     FileText,
     MessagesSquare,
     UserCog,
+    FileSpreadsheet,
 } from "lucide-react";
 
 type Submenu = {
@@ -96,10 +97,10 @@ export function getAdminMenuList(pathname: string): Group[] {
                     ],
                 },
                 {
-                    href: "/dashboard/order",
-                    label: "Order",
-                    active: pathname.includes("/dashboard/order"),
-                    icon: CalendarArrowUp,
+                    href: "/dashboard/assignment",
+                    label: "Assignment",
+                    active: pathname.includes("/dashboard/assignment"),
+                    icon: FileSpreadsheet,
                     submenus: [],
                 },
                 {
@@ -212,9 +213,9 @@ export function getMenuListUser(pathname: string): Group[] {
                     submenus: [],
                 },
                 {
-                    href: "/user/assignment",
-                    label: "Assignment",
-                    active: pathname.includes("/user/assignment"),
+                    href: "/user/assignments",
+                    label: "Assignments",
+                    active: pathname.includes("/user/assignments"),
                     icon: FileText,
                     submenus: [],
                 },

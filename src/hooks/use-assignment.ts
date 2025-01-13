@@ -13,3 +13,4 @@ export const useDeleteAssignment = create<DeleteAssignmentState>((set) => ({
     onOpen: (id: string) => set({ isOpen: true, assignmentId: id }),
     onClose: () => set({ isOpen: false, assignmentId: "" }),
 }));
+

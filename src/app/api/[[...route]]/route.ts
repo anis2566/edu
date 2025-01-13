@@ -15,6 +15,7 @@ import { webhookRouter } from '@/features/server/webhook/route';
 import { uploadRouter } from '@/lib/uploadthing';
 import { courseRouter } from '@/server/course/route';
 import { chapterRouter } from '@/server/chapter/route';
+import { submissionRouter } from '@/server/submission/route';
 
 const handlers = createRouteHandler({
     router: uploadRouter,
@@ -35,6 +36,7 @@ const app = new Hono()
     .route('/payment', paymentRouter)
     .route('/webhooks', webhookRouter)
     .route('/assignment', assignmentRouter)
+    .route('/submission', submissionRouter)
 
 export const GET = handle(app)
 export const POST = handle(app)
