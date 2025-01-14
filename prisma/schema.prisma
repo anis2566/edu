@@ -21,6 +21,9 @@ model User {
   image         String?
   password      String?
   role          String          @default("User")
+  dob           DateTime?
+  gender        String?
+  phone         String?
 
   accounts      Account[]
   sessions      Session[]
@@ -146,23 +149,9 @@ model Chapter {
   userProgress  UserProgress[]
   questions     Question[]
   assignment   Assignment?
-  exams         Exam[]
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-}
-
-model Exam {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  marks       Int
-  duration    Int
-
-  chapterId   String   @db.ObjectId
-  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model Question {

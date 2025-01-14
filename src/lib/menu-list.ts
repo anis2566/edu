@@ -220,20 +220,6 @@ export function getMenuListUser(pathname: string): Group[] {
                     submenus: [],
                 },
                 {
-                    href: "/user/feedback",
-                    label: "Feedback",
-                    active: pathname.includes("/user/feedback"),
-                    icon: MessageCircleWarning,
-                    submenus: [],
-                },
-                {
-                    href: "/user/chat",
-                    label: "Chat",
-                    active: pathname === "/user/chat",
-                    icon: MessagesSquare,
-                    submenus: [],
-                },
-                {
                     href: "/user/profile",
                     label: "Profile",
                     active: pathname === "/user/profile",

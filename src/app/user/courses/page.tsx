@@ -11,7 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import { ContentLayout } from "@/features/dashboard/components/content-layout";
+import { ContentLayout } from "@/features/user/components/content-layout";
 import { CourseList } from "@/features/user/courses/components/course-list";
 
 export const metadata: Metadata = {
