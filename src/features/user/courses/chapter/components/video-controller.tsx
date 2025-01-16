@@ -7,7 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 import { cn, formatPrice } from "@/lib/utils";
 import { useCreatePayment } from "@/features/server/api/payment/use-create-payment";
-import { useToggleComplete } from "@/features/dashboard/course/chapter/api/use-toggle-complete";
+import { useToggleComplete } from "@/features/user/courses/chapter/api/use-complete";
 
 interface Props {
     nextChapterId: string;
@@ -84,8 +84,9 @@ export const VideoController = ({
                         variant="outline"
                         onClick={handleToggleComplete}
                         disabled={isToggleCompletePending}
+                        className={`${isCompleted && "hidden"}`}
                     >
-                        {isCompleted ? "Mark as Uncomplete" : "Mark as Complete"}
+                        Mark as Complete
                     </Button>
                 ) : (
                     <Button onClick={handleEnroll} disabled={isPending}>

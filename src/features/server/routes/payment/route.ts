@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import axios from "axios";
 import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
 
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { zValidator } from "@hono/zod-validator";
 import { db } from "@/lib/db";
+import { sendNotification } from "@/services/notification-services";
+import { getAdmin } from "@/features/auth/server/action";
 
 export const paymentRouter = new Hono()
 
@@ -96,6 +98,36 @@ export const paymentRouter = new Hono()
                     data: {
                         userId,
                         courseId,
+                    },
+                });
+
+                const admin = await getAdmin();
+
+                const user = await db.user.findUnique({
+                    where: {
+                        id: userId,
+                    },
+                });
+
+                if (!user) {
+                    throw new Error("User not found");
+                }
+
+                await sendNotification({
+                    webPushNotification: {
+                        title: "New Purchase",
+                        body: `${user.name} has purchased a course`,
+                        subscribers: admin.subscription,
+                    },
+                    knockNotification: {
+                        trigger: "purchase",
+                        actor: {
+                            id: user.id,
+                            name: user.name ?? "Guest",
+                        },
+                        recipients: [admin.adminId],
+                        data: {
+                        },
                     },
                 });
 

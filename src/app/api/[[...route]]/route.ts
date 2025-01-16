@@ -17,6 +17,7 @@ import { courseRouter } from '@/server/course/route';
 import { chapterRouter } from '@/server/chapter/route';
 import { submissionRouter } from '@/server/submission/route';
 import { userRouter } from '@/server/user/route';
+import { webPushRouter } from '@/server/web-push/route';
 
 const handlers = createRouteHandler({
     router: uploadRouter,
@@ -39,6 +40,7 @@ const app = new Hono()
     .route('/assignment', assignmentRouter)
     .route('/submission', submissionRouter)
     .route('/user', userRouter)
+    .route('/webPush', webPushRouter)
 
 export const GET = handle(app)
 export const POST = handle(app)

@@ -15,10 +15,11 @@ export const useAddQuestion = create<AddQuestionState>((set) => ({
     onClose: () => set({ isOpen: false, chapterId: "" }),
 }));
 
-type UserWithExtended = Omit<User, 'createdAt' | 'updatedAt' | 'emailVerified'> & {
+type UserWithExtended = Omit<User, 'createdAt' | 'updatedAt' | 'emailVerified' | 'dob'> & {
     createdAt: string;
     updatedAt: string;
     emailVerified: string | null;
+    dob: string | null;
 };
 
 type QuestionAnswerExtended = Omit<QuestionAnswer, 'createdAt' | 'updatedAt'> & {

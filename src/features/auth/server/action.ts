@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 import { JWTPayload } from "@/lib/session-middleware";
+import { db } from "@/lib/db";
 
 export const getCurrent = cache(async () => {
     const session = (await cookies()).get("auth_session");
@@ -28,4 +29,25 @@ export const getCurrent = cache(async () => {
     };
 
     return user;
+});
+
+export const getAdmin = cache(async () => {
+    const admin = await db.user.findFirst({
+        where: {
+            role: "Admin",
+        },
+        include: {
+            pushSubscribers: true,
+        },
+    });
+
+    if (!admin) {
+        throw new Error("Admin not found");
+    }
+
+    return {
+        adminId: admin.id,
+        name: admin.name,
+        subscription: admin.pushSubscribers,
+    }
 });

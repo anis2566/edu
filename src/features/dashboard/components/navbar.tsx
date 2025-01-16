@@ -3,6 +3,7 @@
 import ToggleButton from "@/components/toggle-button";
 
 import { UserNav } from "./user-nav";
+import { Notification } from "@/components/notification";
 
 interface NavbarProps {
     title: string;
@@ -17,7 +18,7 @@ export function Navbar({ title }: NavbarProps) {
                     <h1 className="font-bold">{title}</h1>
                 </div>
                 <div className="flex flex-1 items-center justify-end space-x-2">
-                    {/* <Notification /> */}
+                    <Notification />
                     <UserNav />
                 </div>
             </div>

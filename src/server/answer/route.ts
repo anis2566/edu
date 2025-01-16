@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { db } from "@/lib/db"
 import { isAdmin, sessionMiddleware } from "@/lib/session-middleware"
+import { sendNotification } from "@/services/notification-services"
 
 export const answerRouter = new Hono()
     .post(
@@ -18,12 +19,19 @@ export const answerRouter = new Hono()
         async (c) => {
             const { answer } = c.req.valid("json")
             const { questionId } = c.req.valid("param")
-            const { userId } = c.get("user")
+            const { userId, name } = c.get("user")
 
             try {
                 const question = await db.question.findUnique({
                     where: {
                         id: questionId
+                    },
+                    include: {
+                        user: {
+                            include: {
+                                pushSubscribers: true,
+                            }
+                        }
                     }
                 })
 
@@ -31,12 +39,33 @@ export const answerRouter = new Hono()
                     return c.json({ error: "Question not found" }, 404)
                 }
 
-                await db.questionAnswer.create({
-                    data: {
-                        questionId,
-                        answer,
-                        userId
-                    }
+                await db.$transaction(async (tx) => {
+                    await tx.questionAnswer.create({
+                        data: {
+                            questionId,
+                            answer,
+                            userId
+                        }
+                    })
+
+                    await sendNotification({
+                        webPushNotification: {
+                            title: "New Answer",
+                            body: `${name} has answered your question`,
+                            subscribers: question.user.pushSubscribers,
+                        },
+                        knockNotification: {
+                            trigger: "question-reply",
+                            actor: {
+                                id: userId,
+                                name: name,
+                            },
+                            recipients: [question.user.id],
+                            data: {
+                                redirectUrl: `/user/questions`,
+                            },
+                        },
+                    })
                 })
 
                 return c.json({ success: "Answer submitted" }, 200)

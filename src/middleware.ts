@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { getCurrent } from "@/features/auth/server/action";
 
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = ["/dashboard", "/user"];
 
 export async function middleware(request: NextRequest) {
     const user = await getCurrent();
@@ -32,5 +32,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*"],
+    matcher: ["/dashboard/:path*", "/user/:path*"],
 };

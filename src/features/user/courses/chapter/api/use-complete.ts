@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { client } from "@/lib/rpc";
+import { useConfettiStore } from "@/hooks/use-confetti";
 
 type RequestType = InferRequestType<(typeof client.api.chapter.toggleCompleted)[":chapterId"]["$put"]>;
 type ResponseType = InferResponseType<(typeof client.api.chapter.toggleCompleted)[":chapterId"]["$put"]>;
@@ -11,6 +12,8 @@ type ResponseType = InferResponseType<(typeof client.api.chapter.toggleCompleted
 export const useToggleComplete = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
+
+    const { onOpen } = useConfettiStore()
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json, param }) => {
@@ -25,6 +28,7 @@ export const useToggleComplete = () => {
                 toast.success(data.success, {
                     duration: 5000,
                 });
+                onOpen()
                 queryClient.invalidateQueries({ queryKey: ["chapter"] });
                 router.refresh();
             }

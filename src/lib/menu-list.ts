@@ -213,6 +213,13 @@ export function getMenuListUser(pathname: string): Group[] {
                     submenus: [],
                 },
                 {
+                    href: "/user/questions",
+                    label: "Questions",
+                    active: pathname.includes("/user/questions"),
+                    icon: MessageCircleQuestion,
+                    submenus: [],
+                },
+                {
                     href: "/user/assignments",
                     label: "Assignments",
                     active: pathname.includes("/user/assignments"),

@@ -3,11 +3,14 @@ import { zValidator } from '@hono/zod-validator'
 import { hash, compare } from 'bcryptjs';
 import { sign, verify } from "hono/jwt";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { Knock } from "@knocklabs/node";
 
 import { SignInSchema, SignUpSchema } from '../schemas';
 import { db } from '@/lib/db';
 import { JWTPayload } from 'hono/utils/jwt/types';
 import { sessionMiddleware } from '@/lib/session-middleware';
+
+const knock = new Knock(process.env.NEXT_PUBLIC_KNOCK_API_KEY);
 
 export const authRouter = new Hono()
     .post(
@@ -30,6 +33,11 @@ export const authRouter = new Hono()
                         email,
                         password: hashedPassword,
                     },
+                });
+
+                await knock.users.identify(user.id, {
+                    name: user.name ?? "Guest",
+                    avatar: user.image,
                 });
 
                 const payload = {

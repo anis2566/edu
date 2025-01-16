@@ -4,23 +4,23 @@ import { InferResponseType } from "hono";
 
 import { client } from "@/lib/rpc";
 
-type ResponseType = InferResponseType<typeof client.api.submission.user.$get>;
+type ResponseType = InferResponseType<typeof client.api.question.user.$get>;
 
-export const useGetAssignments = () => {
+export const useGetQuestions = () => {
     const searchParams = useSearchParams();
     const page = searchParams.get("page") || undefined;
     const limit = searchParams.get("limit") || undefined;
     const sort = searchParams.get("sort") || undefined;
 
     const query = useQuery<ResponseType>({
-        queryKey: ["user-submissions", page, limit, sort],
+        queryKey: ["user-questions", page, limit, sort],
         queryFn: async () => {
-            const res = await client.api.submission.user.$get({
+            const res = await client.api.question.user.$get({
                 query: { page, limit, sort },
             });
             const parseData = await res.json();
             return {
-                submissions: parseData.submissions,
+                questions: parseData.questions,
                 totalCount: parseData.totalCount,
             };
         },

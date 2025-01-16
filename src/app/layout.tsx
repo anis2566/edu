@@ -5,6 +5,7 @@ import "./globals.css";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { ModalProvider } from "@/components/modal-provider";
+import { ConfettiProvider } from "@/components/confetti-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <ModalProvider />
+          <ConfettiProvider />
         </QueryProvider>
       </body>
     </html>

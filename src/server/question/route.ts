@@ -4,6 +4,8 @@ import { z } from "zod";
 
 import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
 import { db } from "@/lib/db";
+import { getAdmin } from "@/features/auth/server/action";
+import { sendNotification } from "@/services/notification-services";
 
 export const questionRouter = new Hono()
     .post(
@@ -14,7 +16,7 @@ export const questionRouter = new Hono()
         async (c) => {
             const { chapterId } = c.req.valid('param');
             const body = c.req.valid('json');
-            const { userId } = c.get('user');
+            const { userId, name } = c.get('user');
 
             try {
                 const chapter = await db.chapter.findUnique({
@@ -25,27 +27,94 @@ export const questionRouter = new Hono()
                     throw new Error("Chapter not found");
                 }
 
-                const question = await db.question.create({
-                    data: {
-                        question: body.question,
-                        chapterId,
-                        userId,
-                    },
-                    include: {
-                        user: true,
-                        answers: {
-                            include: {
-                                user: true,
-                            }
-                        }
-                    },
-                });
+                const question = await db.$transaction(async (tx) => {
+                    const question = await tx.question.create({
+                        data: {
+                            question: body.question,
+                            chapterId,
+                            userId,
+                        },
+                    })
+
+                    const admin = await getAdmin()
+
+                    await sendNotification({
+                        webPushNotification: {
+                            title: "New Question",
+                            body: `${name} has asked a question on ${chapter.title}`,
+                            subscribers: admin.subscription,
+                        },
+                        knockNotification: {
+                            trigger: "question",
+                            actor: {
+                                id: userId,
+                                name: name,
+                            },
+                            recipients: [admin.adminId],
+                            data: {
+                                redirectUrl: `/dashboard/questions`,
+                                chapter: chapter.title,
+                            },
+                        },
+                    })
+
+                    return question
+                })
 
                 return c.json({ success: "Question submitted", question, chapterId }, 200);
             } catch (error) {
                 console.error(error);
                 return c.json({ error: "Internal server error" }, 500);
             }
+        }
+    )
+    .get(
+        "/user",
+        sessionMiddleware,
+        zValidator("query", z.object({
+            page: z.string().optional(),
+            limit: z.string().optional(),
+            sort: z.string().optional(),
+        })),
+        async (c) => {
+            const { userId } = c.get("user");
+            const { page, limit, sort } = c.req.valid("query");
+
+            const pageNumber = parseInt(page || "1");
+            const limitNumber = parseInt(limit || "5");
+
+            const [questions, totalCount] = await Promise.all([
+                db.question.findMany({
+                    where: {
+                        userId
+                    },
+                    include: {
+                        chapter: {
+                            include: {
+                                course: true
+                            }
+                        },
+                        answers: {
+                            include: {
+                                user: true
+                            }
+                        },
+                        user: true
+                    },
+                    orderBy: {
+                        ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
+                    },
+                    skip: (pageNumber - 1) * limitNumber,
+                    take: limitNumber,
+                }),
+                db.question.count({
+                    where: {
+                        userId
+                    }
+                })
+            ])
+
+            return c.json({ questions, totalCount })
         }
     )
     .get(
