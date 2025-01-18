@@ -1,22 +1,21 @@
 "use client";
 
 import { format } from "date-fns";
-import { Eye, MoreVerticalIcon } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { useGetQuestions } from "./api/use-get-questions";
+import { useGetQuestions } from "../api/use-get-questions";
 import { CustomPagination } from "@/components/custom-pagination";
 import { EmptyStat } from "@/components/empty-stat";
-import { useViewQuestion } from "@/hooks/use-question";
+import { useUserViewQuestion } from "@/hooks/use-question";
 
 export const QuestionList = () => {
 
-    const { onOpen } = useViewQuestion();
+    const { onOpen } = useUserViewQuestion();
 
     const { data, isLoading } = useGetQuestions();
 
@@ -50,19 +49,9 @@ export const QuestionList = () => {
                                         <TableCell className="max-w-[200px] truncate">{question.question}</TableCell>
                                         <TableCell>{format(question.createdAt, "dd MMM yyyy")}</TableCell>
                                         <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon">
-                                                        <MoreVerticalIcon className="w-4 h-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem className="flex items-center gap-x-3" onClick={() => onOpen(question)}>
-                                                        <Eye className="w-5 h-5" />
-                                                        <p>View</p>
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                            <Button size="icon" variant="ghost" onClick={() => onOpen(question)}>
+                                                <Eye className="w-5 h-5" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

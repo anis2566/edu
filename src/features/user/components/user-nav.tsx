@@ -33,6 +33,8 @@ export function UserNav() {
         logout();
     };
 
+    console.log(data)
+
     return (
         <DropdownMenu>
             <TooltipProvider disableHoverableContent>

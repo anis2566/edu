@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { isAdmin } from "@/lib/session-middleware";
+import { isAdmin, sessionMiddleware } from "@/lib/session-middleware";
 
 type ClientPayload = {
     policy: string;
@@ -127,7 +127,7 @@ export const videoCipherRouter = new Hono()
     )
     .get(
         "/otp/:videoId",
-        isAdmin,
+        sessionMiddleware,
         zValidator('param', z.object({ videoId: z.string().min(1, { message: "required" }) })),
         async (c) => {
             const { videoId } = c.req.valid('param');
@@ -138,7 +138,7 @@ export const videoCipherRouter = new Hono()
                     {
                         ttl: 300,
                     },
-                    {
+                    { 
                         headers: {
                             Accept: "application/json",
                             "Content-Type": "application/json",

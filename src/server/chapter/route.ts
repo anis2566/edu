@@ -263,7 +263,7 @@ export const chapterRouter = new Hono()
                 }
 
                 let nextChapter = null;
-                if (chapter.position !== null && chapter.position < course.chapters.length - 1) {
+                if (chapter.position !== null && chapter.position < course.chapters.length) {
                     const next = await db.chapter.findFirst({
                         where: {
                             position: chapter.position + 1,

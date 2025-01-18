@@ -79,7 +79,6 @@ export const VideoController = ({
             </div>
             {
                 isPurchased ? (
-
                     <Button
                         variant="outline"
                         onClick={handleToggleComplete}

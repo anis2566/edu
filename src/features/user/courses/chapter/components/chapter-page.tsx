@@ -73,7 +73,7 @@ export const ChapterPage = ({ chapterId, courseId }: Props) => {
 
             {
                 isPurchased && (
-                    <Tabs defaultValue="attachments" className="w-full pt-6">
+                    <Tabs defaultValue="attachments" className="w-full pt-0">
                         <TabsList className="w-full">
                             <TabsTrigger value="attachments">Attachments</TabsTrigger>
                             <TabsTrigger value="assignment">Assignment</TabsTrigger>

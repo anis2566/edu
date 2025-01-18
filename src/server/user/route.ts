@@ -22,10 +22,12 @@ export const userRouter = new Hono()
                     return c.json({ error: "User not found" }, 404);
                 }
 
-                await db.user.update({
+                const updatedUser = await db.user.update({
                     where: { id: userId },
                     data: { name, gender, dob, phone, email, image }
                 });
+
+                console.log(updatedUser)
 
                 return c.json({ success: "Profile updated" });
             } catch (error) {
@@ -34,7 +36,7 @@ export const userRouter = new Hono()
             }
         }
     )
-    .put(
+    .put( 
         "/password",
         sessionMiddleware,
         zValidator("json", z.object({

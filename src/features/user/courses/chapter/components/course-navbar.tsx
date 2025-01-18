@@ -3,6 +3,7 @@ import { Chapter, Course, UserProgress } from "@prisma/client";
 import { Logo } from "@/components/logo";
 import { UserNav } from "@/features/user/components/user-nav";
 import { Notification } from "@/components/notification";
+import { ModeToggle } from "@/components/mode-toggle";
 // import { CourseNavDrawer } from "./drawer";
 // import { Notification } from "@/components/notification";
 
@@ -30,6 +31,7 @@ export const CourseNavbar = ({ }: Props) => {
                     <Logo callbackUrl="/user" />
                 </div>
                 <div className="flex items-center justify-end space-x-2">
+                    <ModeToggle />
                     <Notification />
                     <UserNav />
                 </div>

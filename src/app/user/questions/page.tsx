@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 import { ContentLayout } from "@/features/user/components/content-layout";
-import { QuestionList } from "@/features/user/questions/question-list";
+import { QuestionList } from "@/features/user/questions/components/question-list";
 
 export const metadata: Metadata = {
     title: "EduConnect | Questions",

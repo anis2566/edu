@@ -15,7 +15,7 @@ export const Logo = ({ callbackUrl, className }: LogoProps) => {
     return (
         <Link href={callbackUrl || "/"} className={cn("flex items-center gap-2", className)}>
             <Image src="/logo.svg" alt="Logo" width={40} height={40} className="rounded-full" />
-            <span className={cn("text-lg font-bold text-primary")}>
+            <span className={cn("text-lg font-bold text-primary dark:text-white hidden md:block")}>
                 EduConnect
             </span>
         </Link>

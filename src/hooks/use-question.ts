@@ -49,6 +49,13 @@ export const useViewQuestion = create<ViewQuestionState>((set) => ({
     onClose: () => set({ isOpen: false, question: null }),
 }));
 
+export const useUserViewQuestion = create<ViewQuestionState>((set) => ({
+    isOpen: false,
+    question: null,
+    onOpen: (question) => set({ isOpen: true, question }),
+    onClose: () => set({ isOpen: false, question: null }),
+}));
+
 interface QuestionReplyState {
     isOpen: boolean;
     question: QuestionWithExtended | null;
