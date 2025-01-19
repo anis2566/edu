@@ -23,16 +23,15 @@ export type CourseWithExtended = Omit<Course, 'createdAt' | 'updatedAt'> & {
 
 interface Props {
     course: CourseWithExtended;
-    isPurchased: boolean;
-    totalReviews: number;
-    isReviewed: boolean;
     progress: number | null;
+    showBuyButton?: boolean;
+    urlPrefix?: string;
 }
 
-export const CourseCard = ({ course, progress }: Props) => {
+export const CourseCard = ({ course, progress, showBuyButton = true, urlPrefix = "/user/courses" }: Props) => {
     return (
         <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
-            <Link href={`/user/courses/${course.id}`}>
+            <Link href={`${urlPrefix}/${course.id}`}>
                 <div className="relative aspect-video w-full overflow-hidden rounded-md">
                     <Image
                         fill
@@ -74,7 +73,7 @@ export const CourseCard = ({ course, progress }: Props) => {
                             <IconBadge size="sm" icon={DollarSign} />
                             <span>{formatPrice(course.price || 0)}</span>
                         </div>
-                        <Button onClick={() => { }} disabled={false}>
+                        <Button onClick={() => { }} disabled={false} className={`${showBuyButton ? "block" : "hidden"}`}>
                             Buy Now
                         </Button>
                     </div>

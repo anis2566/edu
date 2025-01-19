@@ -29,7 +29,7 @@ export const CourseList = () => {
                             onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
                         >
                             {courses.map((course, i) => (
-                                <CourseCard key={i} course={course} isPurchased={course.isPurchased} totalReviews={5} isReviewed={true} progress={course.progress} />
+                                <CourseCard key={i} course={course} progress={course.progress} />
                             ))}
                             {isFetchingNextPage && (
                                 <div className="flex justify-center">
