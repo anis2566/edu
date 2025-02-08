@@ -51,6 +51,7 @@ export const homeRouter = new Hono()
                 ...course,
                 isPurchased: false,
                 progress: 0,
+                isReviewed: false,
             }));
 
             return c.json(formattedCourses);

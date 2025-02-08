@@ -21,4 +21,4 @@ export function AppKnockProviders({ children, userId }: Props) {
             </KnockFeedProvider>
         </KnockProvider>
     );
-}
+} 

@@ -34,6 +34,7 @@ model User {
   questionAnswers QuestionAnswer[]
   submissions   Submission[]
   pushSubscribers PushSubscriber[]
+  reviews       Review[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,12 +138,14 @@ model Course {
   tags        String[] @default([])
   rating      Float?
   length      Int      @default(0)
+  totalReviews Int      @default(0)
 
   categoryId  String?  @db.ObjectId
   category    Category? @relation(fields: [categoryId], references: [id])
 
   chapters    Chapter[]
   purchases   Purchase[]
+  reviews     Review[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -286,4 +289,22 @@ model Purchase {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId])
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  rating    Int      @default(0)
+
+  courseId  String   @db.ObjectId
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+  @@index([userId])
+  @@index([rating])
 }

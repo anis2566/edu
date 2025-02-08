@@ -14,7 +14,7 @@ export const Courses = () => {
     const { data: courses, isLoading } = useGetCourses(categoryId);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <h1 className="text-3xl font-bold text-center text-primary tracking-wider">Courses</h1>
 
             <Separator />

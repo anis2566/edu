@@ -152,6 +152,242 @@ export const courseRouter = new Hono()
         }
     )
     .get(
+        "/home",
+        sessionMiddleware,
+        zValidator("query", z.object({
+            cursor: z.string().optional(),
+            sort: z.string().optional(),
+            query: z.string().optional(),
+            category: z.string().optional(),
+        })),
+        async (c) => {
+            const { cursor, sort, query, category } = c.req.valid("query")
+            const { userId } = c.get("user");
+
+            const pageSize = 8;
+
+            const courses = await db.course.findMany({
+                where: {
+                    isPublished: true,
+                    ...(query && {
+                        OR: [
+                            { title: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            { category: { name: { contains: query, mode: "insensitive" } } },
+                        ]
+                    }),
+                    ...(category && { categoryId: category })
+                },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    chapters: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reviews: {
+                        where: {
+                            userId,
+                        }
+                    }
+                },
+                take: pageSize + 1,
+                orderBy: {
+                    ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
+                },
+                cursor: cursor ? { id: cursor } : undefined,
+            });
+
+            const nextCursor = courses.length > pageSize ? courses[pageSize].id : null;
+
+            const coursesWithProgress = await Promise.all(
+                courses.slice(0, pageSize).map(async (course) => {
+                    if (userId) {
+                        const chapters = await db.chapter.findMany({
+                            where: { courseId: course.id },
+                            select: { id: true },
+                        });
+
+                        const chapterIds = chapters.map((chapter) => chapter.id);
+
+                        const userProgress = await db.userProgress.findMany({
+                            where: {
+                                userId,
+                                chapterId: { in: chapterIds },
+                            },
+                            select: {
+                                chapterId: true,
+                                isCompleted: true,
+                            },
+                        });
+
+                        const completedChapters = userProgress.filter(
+                            (progress) => progress.isCompleted,
+                        ).length;
+                        const totalChapters = chapters.length;
+                        const progress =
+                            totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
+
+                        const purchase = await db.purchase.findFirst({
+                            where: {
+                                userId,
+                                courseId: course.id,
+                            },
+                        });
+
+                        const isPurchased = purchase ? true : false;
+                        const isReviewed = course.reviews.some((review) => review.userId === userId);
+
+                        return { ...course, progress, isPurchased, isReviewed };
+                    }
+                    return { ...course, progress: 0, isPurchased: false, isReviewed: false };
+                }),
+            );
+
+            return c.json({ courses: coursesWithProgress, nextCursor });
+        }
+    )
+    .get(
+        "/my",
+        sessionMiddleware,
+        zValidator("query", z.object({
+            cursor: z.string().optional(),
+            sort: z.string().optional(),
+            query: z.string().optional(),
+        })),
+        async (c) => {
+            const { cursor, sort, query } = c.req.valid("query")
+            const { userId } = c.get("user");
+
+            const pageSize = 8;
+
+            const courses = await db.course.findMany({
+                where: {
+                    isPublished: true,
+                    purchases: {
+                        some: {
+                            userId,
+                        },
+                    },
+                    ...(query && {
+                        OR: [
+                            { title: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            { category: { name: { contains: query, mode: "insensitive" } } },
+                        ]
+                    }),
+                },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    chapters: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reviews: {
+                        where: {
+                            userId,
+                        }
+                    }
+                },
+                take: pageSize + 1,
+                orderBy: {
+                    ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
+                },
+                cursor: cursor ? { id: cursor } : undefined,
+            });
+
+            const nextCursor = courses.length > pageSize ? courses[pageSize].id : null;
+
+            const coursesWithProgress = await Promise.all(
+                courses.slice(0, pageSize).map(async (course) => {
+                    if (userId) {
+                        const chapters = await db.chapter.findMany({
+                            where: { courseId: course.id },
+                            select: { id: true },
+                        });
+
+                        const chapterIds = chapters.map((chapter) => chapter.id);
+
+                        const userProgress = await db.userProgress.findMany({
+                            where: {
+                                userId,
+                                chapterId: { in: chapterIds },
+                            },
+                            select: {
+                                chapterId: true,
+                                isCompleted: true,
+                            },
+                        });
+
+                        const completedChapters = userProgress.filter(
+                            (progress) => progress.isCompleted,
+                        ).length;
+                        const totalChapters = chapters.length;
+                        const progress =
+                            totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
+
+                        const purchase = await db.purchase.findFirst({
+                            where: {
+                                userId,
+                                courseId: course.id,
+                            },
+                        });
+
+                        const isPurchased = purchase ? true : false;
+                        const isReviewed = course.reviews.some((review) => review.userId === userId);
+
+                        return { ...course, progress, isPurchased, isReviewed };
+                    }
+                    return { ...course, progress: 0, isPurchased: false, isReviewed: false };
+                }),
+            );
+
+            return c.json({ courses: coursesWithProgress, nextCursor });
+        }
+    )
+    .get(
+        "/featured",
+        async (c) => {
+            const courses = await db.course.findMany({
+                where: { isPublished: true },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    chapters: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+                take: 4,
+                orderBy: {
+                    createdAt: "desc",
+                }
+            });
+
+            const formattedCourses = courses.map((course) => ({
+                ...course,
+                isPurchased: false,
+                progress: 0,
+                isReviewed: false,
+            }));
+
+            return c.json({ courses: formattedCourses });
+        }
+    )
+    .get(
         "/",
         zValidator("query", z.object({
             page: z.string().optional(),
@@ -208,196 +444,5 @@ export const courseRouter = new Hono()
             ]);
 
             return c.json({ courses, totalCount });
-        }
-    )
-    .get(
-        "/home",
-        sessionMiddleware,
-        zValidator("query", z.object({
-            cursor: z.string().optional(),
-            sort: z.string().optional(),
-            query: z.string().optional(),
-            category: z.string().optional(),
-        })),
-        async (c) => {
-            const { cursor, sort, query, category } = c.req.valid("query")
-            const { userId } = c.get("user");
-
-            const pageSize = 8;
-
-            const courses = await db.course.findMany({
-                where: {
-                    isPublished: true,
-                    ...(query && {
-                        OR: [
-                            { title: { contains: query, mode: "insensitive" } },
-                            { description: { contains: query, mode: "insensitive" } },
-                            { category: { name: { contains: query, mode: "insensitive" } } },
-                        ]
-                    }),
-                    ...(category && { categoryId: category })
-                },
-                include: {
-                    category: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    chapters: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
-                take: pageSize + 1,
-                orderBy: {
-                    ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
-                },
-                cursor: cursor ? { id: cursor } : undefined,
-            });
-
-            const nextCursor = courses.length > pageSize ? courses[pageSize].id : null;
-
-            const coursesWithProgress = await Promise.all(
-                courses.slice(0, pageSize).map(async (course) => {
-                    if (userId) {
-                        const chapters = await db.chapter.findMany({
-                            where: { courseId: course.id },
-                            select: { id: true },
-                        });
-
-                        const chapterIds = chapters.map((chapter) => chapter.id);
-
-                        const userProgress = await db.userProgress.findMany({
-                            where: {
-                                userId,
-                                chapterId: { in: chapterIds },
-                            },
-                            select: {
-                                chapterId: true,
-                                isCompleted: true,
-                            },
-                        });
-
-                        const completedChapters = userProgress.filter(
-                            (progress) => progress.isCompleted,
-                        ).length;
-                        const totalChapters = chapters.length;
-                        const progress =
-                            totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
-
-                        const purchase = await db.purchase.findFirst({
-                            where: {
-                                userId,
-                                courseId: course.id,
-                            },
-                        });
-
-                        const isPurchased = purchase ? true : false;
-
-                        return { ...course, progress, isPurchased };
-                    }
-                    return { ...course, progress: 0, isPurchased: false };
-                }),
-            );
-
-            return c.json({ courses: coursesWithProgress, nextCursor });
-        }
-    )
-    .get(
-        "/my",
-        sessionMiddleware,
-        zValidator("query", z.object({
-            cursor: z.string().optional(),
-            sort: z.string().optional(),
-            query: z.string().optional(),
-        })),
-        async (c) => {
-            const { cursor, sort, query } = c.req.valid("query")
-            const { userId } = c.get("user");
-
-            const pageSize = 8;
-
-            const courses = await db.course.findMany({
-                where: {
-                    isPublished: true,
-                    purchases: {
-                        some: {
-                            userId,
-                        },
-                    },
-                    ...(query && {
-                        OR: [
-                            { title: { contains: query, mode: "insensitive" } },
-                            { description: { contains: query, mode: "insensitive" } },
-                            { category: { name: { contains: query, mode: "insensitive" } } },
-                        ]
-                    }),
-                },
-                include: {
-                    category: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    chapters: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
-                take: pageSize + 1,
-                orderBy: {
-                    ...(sort === "asc" ? { createdAt: "asc" } : { createdAt: "desc" }),
-                },
-                cursor: cursor ? { id: cursor } : undefined,
-            });
-
-            const nextCursor = courses.length > pageSize ? courses[pageSize].id : null;
-
-            const coursesWithProgress = await Promise.all(
-                courses.slice(0, pageSize).map(async (course) => {
-                    if (userId) {
-                        const chapters = await db.chapter.findMany({
-                            where: { courseId: course.id },
-                            select: { id: true },
-                        });
-
-                        const chapterIds = chapters.map((chapter) => chapter.id);
-
-                        const userProgress = await db.userProgress.findMany({
-                            where: {
-                                userId,
-                                chapterId: { in: chapterIds },
-                            },
-                            select: {
-                                chapterId: true,
-                                isCompleted: true,
-                            },
-                        });
-
-                        const completedChapters = userProgress.filter(
-                            (progress) => progress.isCompleted,
-                        ).length;
-                        const totalChapters = chapters.length;
-                        const progress =
-                            totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
-
-                        const purchase = await db.purchase.findFirst({
-                            where: {
-                                userId,
-                                courseId: course.id,
-                            },
-                        });
-
-                        const isPurchased = purchase ? true : false;
-
-                        return { ...course, progress, isPurchased };
-                    }
-                    return { ...course, progress: 0, isPurchased: false };
-                }),
-            );
-
-            return c.json({ courses: coursesWithProgress, nextCursor });
         }
     )

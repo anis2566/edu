@@ -17,8 +17,11 @@ import { SubmissionViewModal } from "@/features/user/assignments/components/view
 import { SubmissionViewModalAdmin } from "@/features/dashboard/assignment/components/view-modal"
 import { SubmissionStatusModal } from "@/features/dashboard/assignment/components/status-modal"
 import { DeleteSubmissionModal } from "@/features/dashboard/assignment/components/delete-modal"
+import { DeleteReviewModal } from "@/features/dashboard/review/components/delete-modal"
 import { UserViewQuestionModal } from "@/features/user/questions/components/view-modal"
 import { HeroModal } from "@/features/home/components/hero-modal"
+import { ReviewModal } from "@/features/user/my-courses/components/review-modal"
+import { ReviewViewModal } from "@/features/dashboard/review/components/view-modal"
 
 export const ModalProvider = () => {
     return (
@@ -41,7 +44,10 @@ export const ModalProvider = () => {
             <SubmissionStatusModal />
             <DeleteSubmissionModal />
             <UserViewQuestionModal />
+            <DeleteReviewModal />
             <HeroModal />
+            <ReviewModal />
+            <ReviewViewModal />
         </>
     )
 }

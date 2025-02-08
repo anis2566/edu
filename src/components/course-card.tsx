@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Clock3, DollarSign } from "lucide-react";
@@ -7,11 +9,12 @@ import "@smastrom/react-rating/style.css";
 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "./ui/button";
 
 import { IconBadge } from "./icon-badge";
-import { Button } from "./ui/button";
 import { formatPrice, secondsToHMS } from "@/lib/utils";
 import { CourseProgress } from "@/features/user/courses/chapter/components/course-progress";
+import { useReview } from "@/hooks/use-review";
 
 export type CourseWithExtended = Omit<Course, 'createdAt' | 'updatedAt'> & {
     createdAt: string;
@@ -19,6 +22,7 @@ export type CourseWithExtended = Omit<Course, 'createdAt' | 'updatedAt'> & {
     category: { name: string } | null;
     chapters: { id: string }[];
     isPurchased: boolean;
+    isReviewed: boolean;
 };
 
 interface Props {
@@ -29,6 +33,8 @@ interface Props {
 }
 
 export const CourseCard = ({ course, progress, showBuyButton = true, urlPrefix = "/user/courses" }: Props) => {
+    const { onOpen } = useReview();
+
     return (
         <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
             <Link href={`${urlPrefix}/${course.id}`}>
@@ -46,7 +52,7 @@ export const CourseCard = ({ course, progress, showBuyButton = true, urlPrefix =
                         <p>{course.title}</p>
                         <div className="flex items-center gap-x-1">
                             <Rating value={course.rating ?? 0} readOnly style={{ maxWidth: 70 }} />
-                            <span className="text-xs text-gray-500">({course.rating ?? 0})</span>
+                            <span className="text-xs text-gray-500">({course.totalReviews})</span>
                         </div>
                     </div>
                     <div className="my-1 flex items-center gap-x-2 text-sm md:text-xs">
@@ -86,6 +92,13 @@ export const CourseCard = ({ course, progress, showBuyButton = true, urlPrefix =
                     value={progress || 0}
                 />
             ) : null
+            }
+            {
+                course.isPurchased && !course.isReviewed && (
+                    <Button variant="outline" className="w-full mt-4" onClick={() => onOpen(course.id)}>
+                        Leave a Review
+                    </Button>
+                )
             }
         </div>
     );
